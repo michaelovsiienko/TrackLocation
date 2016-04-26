@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Track Location</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="number">№ телефона</string>
+    <string name="name">Никнейм</string>
+    <string name="password_generate">Пароль</string>
+    <string name="password">Сгенерированный пароль</string>
+    <string name="password_button">Сгенерировать</string>
+    <string name="registration">Регистрация</string>
+    <string name="infoString">Введите данные:</string>
+    <string name="hint">Номер существует</string>
+    <string name="contacts">Контакты</string>
+    <string name="header_password_">Пароль:</string>
+    <string name="login">Войти</string>
+    <string name="incorrect_number">Не верный номер</string>
+    <string name="incorrect_password">Не верный пароль</string>
+    <string name="home_navigation_menu">Главная</string>
+    <string name="logout_navigation_menu">Выход</string>
+    <string name="add_friend_tittle">Добавить друга</string>
+    <string name="add_group_tittle">Добавить группу</string>
+    <string name="add_friend">Добавить</string>
+    <string name="cancel_dialogfragment">Отмена</string>
+    <string name="group_dialogfragment">Группа</string>
+    <string name="succes">Друг добавлен успешно!</string>
+    <string name="chanche">Замена</string>
+    <string name="chanche_passTittle">Введите новые пароли</string>
+    <string name="chanche_password">Смена пароля</string>
+    <string name="old_password">Пароль устарел</string>
+    <string name="trackMyLocation">Отслеживать меня</string>
+    <string name="review">Просмотр на карте</string>
+</resources>
