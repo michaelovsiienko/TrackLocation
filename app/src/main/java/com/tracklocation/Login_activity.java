@@ -85,21 +85,32 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
         switch (v.getId()) {
 
             case R.id.button_login:
+                        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.child(mEditTextNumber.getText().toString()).exists()) {
+                                    String password  = dataSnapshot.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).getValue().toString();
+                                    String buff = mEditTextPassword.getText().toString();
+                                    if ( password.equals(buff)) {
+                                        Intent intent = getIntent();
+                                        intent.putExtra("number", mEditTextNumber.getText().toString());
+                                        setResult(RESULT_OK, intent);
+                                        Singleton.getInstance().setDataSnapshot(dataSnapshot);
+                                        finish();
+                                    } else {
+                                        mInputPassword.setHint(getResources().getString(R.string.incorrect_password));
+                                    }
 
-                        if (Singleton.getInstance().getDataSnapshot().child(mEditTextNumber.getText().toString()).exists()) {
-                            String password  = Singleton.getInstance().getDataSnapshot().child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).getValue().toString();
-                            String buff = mEditTextPassword.getText().toString();
-                            if ( password.equals(buff)) {
-                                Intent intent = getIntent();
-                                intent.putExtra("number", mEditTextNumber.getText().toString());
-                                setResult(RESULT_OK, intent);
-                                finish();
-                            } else {
-                                mInputPassword.setHint(getResources().getString(R.string.incorrect_password));
+                                } else
+                                    mInputNumber.setHint(getResources().getString(R.string.incorrect_number));
                             }
 
-                        } else
-                            mInputNumber.setHint(getResources().getString(R.string.incorrect_number));
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
+
                 break;
             case R.id.button_registration:
                 startActivityForResult(new Intent(this, Registration_activity.class),1);

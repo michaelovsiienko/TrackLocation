@@ -30,6 +30,7 @@ public class Registration_activity extends AppCompatActivity {
     private Button mButtonRegistration;
     private boolean isGenerate = false;
     private ArrayList<String> listNumbers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,33 +44,45 @@ public class Registration_activity extends AppCompatActivity {
         mTextViewPassword = (TextView) findViewById(R.id.textView5);
         mButtonGenerate = (Button) findViewById(R.id.button);
         mButtonRegistration = (Button) findViewById(R.id.button2);
-        mInputNumber = (TextInputLayout)findViewById(R.id.input_name_layout);
+        mInputNumber = (TextInputLayout) findViewById(R.id.input_name_layout);
         mButtonRegistration.setEnabled(false);
         mButtonGenerate.setEnabled(false);
         Firebase.setAndroidContext(getApplicationContext());
         mFirebaseRef = new Firebase("https://boiling-torch-9376.firebaseio.com/");
 
         listNumbers = new ArrayList<>();
-                for(DataSnapshot child : Singleton.getInstance().getDataSnapshot().getChildren())
-                {
+        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listNumbers.clear();
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
                     listNumbers.add(child.getKey());
                 }
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
+
 
     }
+
     @Override
-    protected void onResume (){
+    protected void onResume() {
         super.onResume();
         mEditTextNickname.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
+
             @Override
             public void afterTextChanged(Editable s) {
-                if (mEditTextNumber.getTextSize()!=0)
+                if (mEditTextNumber.getTextSize() != 0)
                     mButtonGenerate.setEnabled(true);
             }
         });
@@ -90,11 +103,13 @@ public class Registration_activity extends AppCompatActivity {
             }
         });
     }
+
     @Override
-    public void onBackPressed (){
+    public void onBackPressed() {
         super.onBackPressed();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
@@ -105,29 +120,28 @@ public class Registration_activity extends AppCompatActivity {
                 if (!listNumbers.contains(mEditTextNumber.getText().toString())) {
                     registration();
                     finish();
-                }
-                else
-                {
+                } else {
                     mInputNumber.setHint(getResources().getString(R.string.hint));
                 }
                 break;
         }
     }
 
-    public  String generatePassword() {
+    public String generatePassword() {
         String password;
         password = PasswordGenerate.generatePass();
-         return password;
+        return password;
     }
-    public void registration(){
+
+    public void registration() {
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mTextViewPassword.getText());
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.NICKNAME).setValue(mEditTextNickname.getText().toString());
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(0);
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(0);
 
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUP).child("1").setValue("Друзья");
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUP).child("2").setValue("Семья");
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUP).child("3").setValue("Работа");
+        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
+        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
+        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("3").setValue("Работа");
 
         Intent intent = getIntent();
         intent.putExtra("number", mEditTextNumber.getText().toString());

@@ -19,7 +19,8 @@ public class FirebaseManager {
     private Firebase mFirebaseRef;
     private DataSnapshot mDataSnapshot;
 
-    FirebaseManager() {
+    FirebaseManager(Context context) {
+        mContext = context;
         Firebase.setAndroidContext(mContext);
         mFirebaseRef = new Firebase(Constants.DATABASE_URL);
     }
@@ -28,6 +29,7 @@ public class FirebaseManager {
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null)
                 mDataSnapshot = dataSnapshot;
             }
 
@@ -36,39 +38,92 @@ public class FirebaseManager {
 
             }
         });
-        Singleton.getInstance().setDataSnapshot(mDataSnapshot);
+        if (mDataSnapshot != null)
+            Singleton.getInstance().setDataSnapshot(mDataSnapshot);
         return mDataSnapshot;
     }
+    private boolean flag;
+    public boolean userExists(final String numberPhone) {
+          flag = true;
+        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                flag = mDataSnapshot.child(numberPhone).exists();
+            }
 
-    public boolean userExists(String numberPhone) {
-        return mDataSnapshot.child(numberPhone).exists();
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+        return  flag;
     }
 
-    public List<String> getUserGroups(String numberPhone) {
-        List<String> usersGroups = new ArrayList<>();
+    public List<String> getUserGroups(final String numberPhone) {
+       final List<String> usersGroups = new ArrayList<>();
         usersGroups.clear();
-        DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.GROUPS);
-        for (DataSnapshot child : dataSnapshot1.getChildren())
-            usersGroups.add(child.getValue().toString());
-        Singleton.getInstance().setUsersGroups(usersGroups);
+        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mDataSnapshot = dataSnapshot;
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.GROUPS);
+                for (DataSnapshot child : dataSnapshot1.getChildren())
+                    usersGroups.add(child.getValue().toString());
+                Singleton.getInstance().setUsersGroups(usersGroups);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
         return usersGroups;
     }
-    public List<String> getUserFriendListGroup (String numberPhone){
-        List<String> mUsersFriendListGroups = new ArrayList<>();
+
+    public List<String> getUserFriendListGroup(final String numberPhone) {
+       final List<String> mUsersFriendListGroups = new ArrayList<>();
         mUsersFriendListGroups.clear();
-        DataSnapshot dataSnapshot = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
-        for (DataSnapshot child : dataSnapshot.getChildren())
-            mUsersFriendListGroups.add(child
-                    .child(Constants.GROUP).getValue().toString());
-        Singleton.getInstance().setmUserFriendListGroup(mUsersFriendListGroups);
-        return  mUsersFriendListGroups;
+        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mDataSnapshot = dataSnapshot;
+
+
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
+                for (DataSnapshot child : dataSnapshot1.getChildren())
+                    mUsersFriendListGroups.add(child
+                            .child(Constants.GROUP).getValue().toString());
+                Singleton.getInstance().setmUserFriendListGroup(mUsersFriendListGroups);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        return mUsersFriendListGroups;
     }
-    public List<String> getUserFriendList (String numberPhone){
-        List<String> mUsersFriendList = new ArrayList<>();
+
+    public List<String> getUserFriendList(final String numberPhone) {
+        final List<String> mUsersFriendList = new ArrayList<>();
         mUsersFriendList.clear();
-        DataSnapshot dataSnapshot = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
-        for (DataSnapshot child : dataSnapshot.getChildren())
-            mUsersFriendList.add(child.getKey().toString());
+        mFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mDataSnapshot = dataSnapshot;
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
+                for (DataSnapshot child : dataSnapshot1.getChildren())
+                    mUsersFriendList.add(child.getKey().toString());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
         return mUsersFriendList;
     }
 

@@ -54,6 +54,7 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
         mFirebaseRef = new Firebase(Constants.DATABASE_URL);
+        mFirebaseHelper = new FirebaseManager(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         if (getArguments() != null) {
             mPhoneNumberArgument = getArguments().getString(Constants.PHONE_NUM_ARG);
@@ -94,25 +95,35 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case Dialog.BUTTON_POSITIVE:
+            mFirebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if ( dataSnapshot.child(numberFriend.getText().toString()).exists() ) {
+                        String buffer = passwordFriend.getText().toString();
+                        if (dataSnapshot!=null)
+                            password = dataSnapshot.child(numberFriend.getText().toString()).child(Constants.PASSWORD).getValue().toString();
+                        if (password.equals(buffer) ) {
+                            mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
+                            mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.PASSWORD).setValue(password);
 
-                if (mFirebaseHelper.userExists(numberFriend.getText().toString())) {
-                    String buffer = passwordFriend.getText().toString();
-                    if (Singleton.getInstance().getDataSnapshot()!=null)
-                        password = Singleton.getInstance().getDataSnapshot().child(numberFriend.getText().toString()).child(Constants.PASSWORD).getValue().toString();
-                    if (password.equals(buffer) ) {
-                        mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
-                        mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.PASSWORD).setValue(password);
+                            // FriendListFragment.sExpandableList.addContactToGroup(mSpinner.getSelectedItem().toString(),numberFriend.getText().toString());
+                            // FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
+                            Toast.makeText(getActivity(),getResources().getString(R.string.succes),Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            passwordFriendLayout.setHint(getResources().getString(R.string.incorrect_password));
+                        }
+                    }
+                    else
+                        numberPhoneFriendLayout.setHint(getResources().getString(R.string.incorrect_number));
 
-                        FriendListFragment.sExpandableList.addContactToGroup(mSpinner.getSelectedItem().toString(),numberFriend.getText().toString());
-                        FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(),getResources().getString(R.string.succes),Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        passwordFriendLayout.setHint(getResources().getString(R.string.incorrect_password));
-                    }
-                    }
-                else
-                    numberPhoneFriendLayout.setHint(getResources().getString(R.string.incorrect_number));
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
                 break;
         }
     }

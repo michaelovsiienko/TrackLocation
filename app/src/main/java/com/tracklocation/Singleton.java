@@ -14,7 +14,7 @@ public class Singleton {
     private List<String> mUserFriendListGroup = new ArrayList<>();
     private List<String> mUserFriendList = new ArrayList<>();
     private DataSnapshot mDataSnapshot;
-    private String mUserPhone;
+    private String mUserPhone = "";
 
     public static Singleton getInstance() {
         if (mInstance == null) {
@@ -66,7 +66,14 @@ public class Singleton {
     public void setmUserFriendList (List<String> userFriendList){
         this.mUserFriendList = userFriendList;
     }
-    private List<String> getmUserFriendList () {
+    public List<String> getmUserFriendList () {
         return this.mUserFriendList;
     }
+    public void clearAll (){
+         List<String> mSelectedUsers = new ArrayList<>();
+         List<String> mUsersGroups = new ArrayList<>();
+         List<String> mUserFriendListGroup = new ArrayList<>();
+         List<String> mUserFriendList = new ArrayList<>();
+    }
+
 }

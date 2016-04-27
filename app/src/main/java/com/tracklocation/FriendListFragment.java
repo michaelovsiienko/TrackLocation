@@ -1,6 +1,6 @@
 package com.tracklocation;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -35,7 +35,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     private List<String> mSelectedUsers;
 
     private ExpandableListView mExpandableListView;
-    public static ExpandableList sExpandableList;
+    public static ExpandableList sExpandableList ;
     public static ExpListAdapter sExpandableListAdapter;
 
     public static FriendListFragment newInstance(String phoneNumber, List<String> usersGroups, List<String> usersFriendList, List<String> usersFriendListGroups) {
@@ -74,7 +74,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        setHasOptionsMenu(true);
         View view = inflater.inflate(R.layout.fragment_friendslist, container, false);
         mExpandableListView = (ExpandableListView) view.findViewById(R.id.expandable_listview);
 
@@ -91,8 +91,11 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         showFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mSelectedUsers = Singleton.getInstance().getSelectedUsers();
                 if (mSelectedUsers.size() != 0) {
-                    mOnShowFriendsListener.onShowFriends(false, null, mSelectedUsers);
+//                    mOnShowFriendsListener.onShowFriends(false, null, mSelectedUsers);
+                    ((MainActivity)getActivity()).reloadMap();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }
         });
@@ -112,7 +115,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
                 childCheckBox.setChecked(false);
                 mSelectedUsers.remove(text.getText().toString());
             }
-            Singleton.getInstance().setSelectedUsers(mSelectedUsers);
+
         } else {
             IncorrectPasswordFragment incorrectPasswordFragment =
                     IncorrectPasswordFragment.newInstance(text.getText().toString(), mPhoneNumberArgument);

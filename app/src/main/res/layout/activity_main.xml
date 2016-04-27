@@ -12,11 +12,12 @@
         android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <include layout="@layout/toolbar" />
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            android:name="com.google.android.gms.maps.MapFragment"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:id="@+id/GoogleMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

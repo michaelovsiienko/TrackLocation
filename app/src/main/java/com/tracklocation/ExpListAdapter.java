@@ -108,11 +108,11 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         });
         childTextView.setText(getChild(groupPosition, childPosition).toString());
 
-        String bufferMyPassword = Singleton.getInstance().getDataSnapshot()
+        String bufferMyPassword = MainActivity.mDataSnapshot
                 .child(Singleton.getInstance().getmUserPhone())
                 .child(Constants.FRIENDS).child(childTextView.getText().toString())
                 .child(Constants.PASSWORD).getValue().toString();
-        String bufferFriendPassword = Singleton.getInstance().getDataSnapshot()
+        String bufferFriendPassword = MainActivity.mDataSnapshot
                 .child(childTextView.getText().toString())
                 .child(Constants.PASSWORD).getValue().toString();
         TextView oldPassword = (TextView) convertView.findViewById(R.id.oldPasschildTextView);
