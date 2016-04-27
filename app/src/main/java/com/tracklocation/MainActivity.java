@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     .position(new LatLng(getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLatitude(), getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLongitude()))
                                     .title(mSelectedUsers.get(i)));
                         }
+                        if(mMyLocation!=null)
                         googleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(mMyLocation.getLatitude(), mMyLocation.getLongitude()))
                                 .title(mUserPhoneNumber)
@@ -261,8 +262,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Location getUserLocation(String userName, DataSnapshot dataSnapshot) {
         Location location = new Location("");
-        location.setLatitude(Double.parseDouble(dataSnapshot.child(userName).child("first").getValue().toString()));
-        location.setLongitude(Double.parseDouble(dataSnapshot.child(userName).child("second").getValue().toString()));
+        if (dataSnapshot !=null) {
+            location.setLatitude(Double.parseDouble(dataSnapshot.child(userName).child("first").getValue().toString()));
+            location.setLongitude(Double.parseDouble(dataSnapshot.child(userName).child("second").getValue().toString()));
+        }
         return location;
     }
 

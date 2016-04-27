@@ -53,9 +53,9 @@ public class AddGroupFragment extends DialogFragment implements DialogInterface.
             case Dialog.BUTTON_POSITIVE:
                int count = (int) Singleton.getInstance().getDataSnapshot().child(mNumberPhone).child(Constants.GROUPS).getChildrenCount();
                 mFirebaseRef.child(mNumberPhone).child(Constants.GROUPS).child( Integer.toString(count+1)).setValue(mNameGroup.getText().toString());
-                Singleton.getInstance().getSelectedUsers().add(mNameGroup.getText().toString());
+               // Singleton.getInstance().getSelectedUsers().add(mNameGroup.getText().toString());
                 FriendListFragment.sExpandableListAdapter.addGroup(mNameGroup.getText().toString());
-                FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
+                //FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(),"Группа успешно добавлена",Toast.LENGTH_SHORT).show();
                 break;
         }

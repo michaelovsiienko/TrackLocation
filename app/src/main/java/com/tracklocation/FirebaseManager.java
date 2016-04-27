@@ -61,10 +61,11 @@ public class FirebaseManager {
 
     public List<String> getUserGroups(final String numberPhone) {
        final List<String> usersGroups = new ArrayList<>();
-        usersGroups.clear();
+
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                usersGroups.clear();
                 mDataSnapshot = dataSnapshot;
                 DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.GROUPS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
@@ -83,13 +84,12 @@ public class FirebaseManager {
 
     public List<String> getUserFriendListGroup(final String numberPhone) {
        final List<String> mUsersFriendListGroups = new ArrayList<>();
-        mUsersFriendListGroups.clear();
+
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapshot = dataSnapshot;
-
-
+                mUsersFriendListGroups.clear();
                 DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
                     mUsersFriendListGroups.add(child
@@ -108,10 +108,11 @@ public class FirebaseManager {
 
     public List<String> getUserFriendList(final String numberPhone) {
         final List<String> mUsersFriendList = new ArrayList<>();
-        mUsersFriendList.clear();
+
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mUsersFriendList.clear();
                 mDataSnapshot = dataSnapshot;
                 DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
