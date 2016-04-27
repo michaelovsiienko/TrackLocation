@@ -136,8 +136,8 @@ public class Registration_activity extends AppCompatActivity {
     public void registration() {
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mTextViewPassword.getText());
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.NICKNAME).setValue(mEditTextNickname.getText().toString());
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(0);
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(0);
+        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(30);
+        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(30);
 
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
         mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
