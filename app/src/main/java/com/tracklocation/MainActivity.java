@@ -29,11 +29,9 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Location mMyLocation;
     private LocationManager mLocationManager;
     private ToggleButton mTrackMyLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         , mUserFriendListGroup));
                 break;
             case R.id.navigation_item_home:
-//                prepareFragment(GoogleMapFragment.newInstance(true, mUserPhoneNumber, null));
+                getSupportFragmentManager().popBackStack();
                 break;
             case R.id.navigation_item_logout:
                 mSharedPreferences = getPreferences(MODE_PRIVATE);
@@ -165,43 +164,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         }
         if (Singleton.getInstance().getSelectedUsers() != null)
-            if (Singleton.getInstance().getSelectedUsers().size() != 0) {
-                mFirebaseRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+            mFirebaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        List<String> mSelectedUsers = Singleton.getInstance().getSelectedUsers();
-                        googleMap.clear();
-                        for (int i = 0; i < mSelectedUsers.size(); i++) {
+                    List<String> mSelectedUsers = Singleton.getInstance().getSelectedUsers();
+                    googleMap.clear();
+                    for (int i = 0; i < mSelectedUsers.size(); i++) {
 
-                            googleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLatitude(), getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLongitude()))
-                                    .title(mSelectedUsers.get(i)));
-                        }
-                        if(mMyLocation!=null)
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLatitude(), getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLongitude()))
+                                .title(mSelectedUsers.get(i)));
+                    }
+                    if (mMyLocation != null)
                         googleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(mMyLocation.getLatitude(), mMyLocation.getLongitude()))
                                 .title(mUserPhoneNumber)
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
 
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
                 }
 
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
     }
 
     @Override
     public void onLocationChanged(Location location) {
         mMyLocation = location;
         mMapFragment.getMapAsync(this);
-        if(mTrackMyLocation.isChecked())
-        {
+        if (mTrackMyLocation.isChecked()) {
             mFirebaseRef.child(mUserPhoneNumber).child("first").setValue(location.getLatitude());
             mFirebaseRef.child(mUserPhoneNumber).child("second").setValue(location.getLongitude());
         }
@@ -230,12 +225,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
+
     @Override
     public void onClick(View v) {
         mNavigationViewHeaderPassword.setText(generatePassword());
         mFirebaseRef.child(mUserPhoneNumber).child(Constants.PASSWORD)
                 .setValue(mNavigationViewHeaderPassword.getText());
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
@@ -278,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Location getUserLocation(String userName, DataSnapshot dataSnapshot) {
         Location location = new Location("");
-        if (dataSnapshot !=null) {
+        if (dataSnapshot != null) {
             location.setLatitude(Double.parseDouble(dataSnapshot.child(userName).child("first").getValue().toString()));
             location.setLongitude(Double.parseDouble(dataSnapshot.child(userName).child("second").getValue().toString()));
         }
@@ -293,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavigationViewHeaderNumber = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderName);
         mNavigationViewHeaderPassword = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderPassword);
         mNavigationViewHeaderResetPassword = (ImageButton) mNavigationViewHeaderView.findViewById(R.id.imageButtonPassword);
-        mTrackMyLocation = (ToggleButton)mNavigationViewHeaderView.findViewById(R.id.toggleButton_navigationview);
+        mTrackMyLocation = (ToggleButton) mNavigationViewHeaderView.findViewById(R.id.toggleButton_navigationview);
         mNavigationViewHeaderResetPassword.setOnClickListener(this);
     }
 
@@ -309,8 +306,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
     }
-
-
 
     private String generatePassword() {
         String password;

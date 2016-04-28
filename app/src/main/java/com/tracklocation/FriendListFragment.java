@@ -1,5 +1,6 @@
 package com.tracklocation;
 
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -38,6 +39,8 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     public static ExpandableList sExpandableList ;
     public static ExpListAdapter sExpandableListAdapter;
 
+    private NavigationView mNavigationView;
+
     public static FriendListFragment newInstance(String phoneNumber, List<String> usersGroups, List<String> usersFriendList, List<String> usersFriendListGroups) {
         FriendListFragment fragment = new FriendListFragment();
         Bundle arguments = new Bundle();
@@ -61,7 +64,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSelectedUsers = new ArrayList<>();
-
+        mNavigationView = (NavigationView) getActivity().findViewById(R.id.navigation_view);
         mPhoneNumberArgument = "";
         if (getArguments() != null) {
             mPhoneNumberArgument = getArguments().getString(Constants.PHONE_NUM_ARG);
@@ -93,9 +96,9 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
             public void onClick(View v) {
                 mSelectedUsers = Singleton.getInstance().getSelectedUsers();
                 if (mSelectedUsers.size() != 0) {
-//                    mOnShowFriendsListener.onShowFriends(false, null, mSelectedUsers);
                     ((MainActivity)getActivity()).reloadMap();
                     getActivity().getSupportFragmentManager().popBackStack();
+                    mNavigationView.getMenu().getItem(0).setChecked(true);
                 }
             }
         });
@@ -108,12 +111,10 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         CheckBox childCheckBox = (CheckBox) v.findViewById(R.id.childViewCheckBox);
         TextView text = (TextView) v.findViewById(R.id.childTextView);
         if (childCheckBox.getVisibility() == View.VISIBLE) {
-            if (!mSelectedUsers.contains(text.getText().toString())) {
+            if (!childCheckBox.isChecked()) {
                 childCheckBox.setChecked(true);
-                mSelectedUsers.add(text.getText().toString());
             } else {
                 childCheckBox.setChecked(false);
-                mSelectedUsers.remove(text.getText().toString());
             }
 
         } else {

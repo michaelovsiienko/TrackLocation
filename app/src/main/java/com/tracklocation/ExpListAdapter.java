@@ -20,16 +20,12 @@ class ExpListAdapter extends BaseExpandableListAdapter {
 
     private Map<String, List<String>> mGroupInformationMap;
     private List<String> mGroupNames;
-    private List<String> mSelectedUsers;
 
     public ExpListAdapter(Context context, Map<String, List<String>> groupInformation) {
         mContext = context;
 
         mGroupNames = new ArrayList<>();
-        if (Singleton.getInstance().getSelectedUsers() == null)
-            mSelectedUsers = new ArrayList<>();
-        else
-            mSelectedUsers = Singleton.getInstance().getSelectedUsers();
+
         mGroupInformationMap = groupInformation;
         for (String currentGroupName : mGroupInformationMap.keySet()) {
             mGroupNames.add(currentGroupName);
@@ -52,10 +48,12 @@ class ExpListAdapter extends BaseExpandableListAdapter {
     public String getChild(int groupPosition, int childPosition) {
         return mGroupInformationMap.get(mGroupNames.get(groupPosition)).get(childPosition);
     }
-    public void addGroup (String groupName){
+
+    public void addGroup(String groupName) {
         mGroupNames.add(groupName);
     }
-    public void addContact (String groupName, String contactName){
+
+    public void addContact(String groupName, String contactName) {
         mGroupInformationMap.get(groupName).add(contactName);
     }
 
@@ -78,10 +76,11 @@ class ExpListAdapter extends BaseExpandableListAdapter {
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-           convertView = inflater.inflate(R.layout.groupview, null);
+            convertView = inflater.inflate(R.layout.groupview, null);
 
         }
-        TextView groupTextView = (TextView) convertView.findViewById(R.id.groupTextView);groupTextView.setText(mGroupNames.get(groupPosition));
+        TextView groupTextView = (TextView) convertView.findViewById(R.id.groupTextView);
+        groupTextView.setText(mGroupNames.get(groupPosition));
         return convertView;
 
     }
@@ -93,19 +92,9 @@ class ExpListAdapter extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.childview, null);
         }
         final TextView childTextView = (TextView) convertView.findViewById(R.id.childTextView);
-        CheckBox childCheckBox = (CheckBox) convertView.findViewById(R.id.childViewCheckBox);
+        final CheckBox childCheckBox = (CheckBox) convertView.findViewById(R.id.childViewCheckBox);
         childCheckBox.setFocusable(false);
         childCheckBox.setChecked(false);
-        childCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
-                    mSelectedUsers.add( childTextView.getText().toString());
-                else
-                    mSelectedUsers.remove( childTextView.getText().toString());
-                Singleton.getInstance().setSelectedUsers(mSelectedUsers);
-            }
-        });
         childTextView.setText(getChild(groupPosition, childPosition).toString());
 
         String bufferMyPassword = MainActivity.mDataSnapshot
@@ -124,8 +113,20 @@ class ExpListAdapter extends BaseExpandableListAdapter {
             oldPassword.setVisibility(View.GONE);
             childCheckBox.setVisibility(View.VISIBLE);
         }
-        if (mSelectedUsers.contains(getChild(groupPosition, childPosition).toString()))
+
+        childCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (childCheckBox.isChecked()) {
+                    Singleton.getInstance().getSelectedUsers().add(childTextView.getText().toString());
+                } else
+                    Singleton.getInstance().getSelectedUsers().remove(childTextView.getText().toString());
+            }
+        });
+        List<String> selectedUsers = Singleton.getInstance().getSelectedUsers();
+        if (selectedUsers.contains(childTextView.getText().toString())) {
             childCheckBox.setChecked(true);
+        }
         return convertView;
     }
 
@@ -138,9 +139,5 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-
-    public List<String> getSelectedUsers() {
-        return this.mSelectedUsers;
-    }
 
 }
