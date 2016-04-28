@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -39,7 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener, View.OnClickListener {
     private NavigationView mNavigationView;
     private TextView mNavigationViewHeaderNickname;
     private TextView mNavigationViewHeaderNumber;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SupportMapFragment mMapFragment;
     private Location mMyLocation;
     private LocationManager mLocationManager;
-
+    private ToggleButton mTrackMyLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (dataSnapshot != null) {
                         mDataSnapshot = dataSnapshot;
                         Singleton.getInstance().setDataSnapshot(mDataSnapshot);
+                        mNavigationViewHeaderPassword.setText(dataSnapshot.child(mUserPhoneNumber)
+                                .child(Constants.PASSWORD).getValue().toString());
+                        mNavigationViewHeaderNumber.setText(mUserPhoneNumber);
+                        mNavigationViewHeaderNickname.setText(dataSnapshot.child(mUserPhoneNumber)
+                                .child(Constants.NICKNAME).getValue().toString());
                     }
                 }
 
@@ -194,6 +200,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLocationChanged(Location location) {
         mMyLocation = location;
         mMapFragment.getMapAsync(this);
+        if(mTrackMyLocation.isChecked())
+        {
+            mFirebaseRef.child(mUserPhoneNumber).child("first").setValue(location.getLatitude());
+            mFirebaseRef.child(mUserPhoneNumber).child("second").setValue(location.getLongitude());
+        }
     }
 
     @Override
@@ -219,7 +230,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
+    @Override
+    public void onClick(View v) {
+        mNavigationViewHeaderPassword.setText(generatePassword());
+        mFirebaseRef.child(mUserPhoneNumber).child(Constants.PASSWORD)
+                .setValue(mNavigationViewHeaderPassword.getText());
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
@@ -277,6 +293,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavigationViewHeaderNumber = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderName);
         mNavigationViewHeaderPassword = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderPassword);
         mNavigationViewHeaderResetPassword = (ImageButton) mNavigationViewHeaderView.findViewById(R.id.imageButtonPassword);
+        mTrackMyLocation = (ToggleButton)mNavigationViewHeaderView.findViewById(R.id.toggleButton_navigationview);
+        mNavigationViewHeaderResetPassword.setOnClickListener(this);
     }
 
     private void initializeToolbar() {
@@ -293,4 +311,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+
+    private String generatePassword() {
+        String password;
+        password = PasswordGenerate.generatePass();
+        return password;
+    }
 }

@@ -122,7 +122,7 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onBackPressed (){
         super.onBackPressed();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        finish();
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
