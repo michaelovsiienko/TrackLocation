@@ -36,7 +36,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     private List<String> mSelectedUsers;
 
     private ExpandableListView mExpandableListView;
-    public static ExpandableList sExpandableList ;
+    public static ExpandableList sExpandableList;
     public static ExpListAdapter sExpandableListAdapter;
 
     private NavigationView mNavigationView;
@@ -90,13 +90,14 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         mExpandableListView.setOnChildClickListener(this);
         setGroupIndicatorToRight();
         Button showFriends = (Button) view.findViewById(R.id.onShowFriendsButton);
+        Singleton.getInstance().getSelectedUsers().clear();
         showFriends.setText(getResources().getString(R.string.review));
         showFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSelectedUsers = Singleton.getInstance().getSelectedUsers();
                 if (mSelectedUsers.size() != 0) {
-                    ((MainActivity)getActivity()).reloadMap();
+                    ((MainActivity) getActivity()).reloadMap();
                     getActivity().getSupportFragmentManager().popBackStack();
                     mNavigationView.getMenu().getItem(0).setChecked(true);
                 }
@@ -137,6 +138,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         final float scale = getResources().getDisplayMetrics().density;
         return (int) (pixels * scale + 0.5f);
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
@@ -148,7 +150,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.add_menu_item_group) {
             AddGroupFragment addGroupFragment = AddGroupFragment.newInstance(mPhoneNumberArgument);
-            addGroupFragment.show(getActivity().getFragmentManager().beginTransaction(),"dialog");
+            addGroupFragment.show(getActivity().getFragmentManager().beginTransaction(), "dialog");
         }
         return false;
     }

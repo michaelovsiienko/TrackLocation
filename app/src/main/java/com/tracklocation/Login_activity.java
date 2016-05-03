@@ -19,13 +19,16 @@ import com.firebase.client.ValueEventListener;
 
 public class Login_activity extends AppCompatActivity implements View.OnClickListener {
     private Toolbar mToolbar;
+
     private Firebase mFirebaseRef;
+
     private TextInputLayout mInputNumber;
     private TextInputLayout mInputPassword;
     private EditText mEditTextNumber;
     private EditText mEditTextPassword;
     private Button mButtonLogin;
     private Button mButtonRegistration;
+
     public static String mUserPhoneNumber;
     private SharedPreferences mSharedPreferences;
 
@@ -85,45 +88,45 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
         switch (v.getId()) {
 
             case R.id.button_login:
-                        mFirebaseRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(mEditTextNumber.getText().toString()).exists()) {
-                                    String password  = dataSnapshot.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).getValue().toString();
-                                    String buff = mEditTextPassword.getText().toString();
-                                    if ( password.equals(buff)) {
-                                        Intent intent = getIntent();
-                                        intent.putExtra("number", mEditTextNumber.getText().toString());
-                                        setResult(RESULT_OK, intent);
-                                        Singleton.getInstance().setDataSnapshot(dataSnapshot);
-                                        finish();
-                                    } else {
-                                        mInputPassword.setHint(getResources().getString(R.string.incorrect_password));
-                                    }
-
-                                } else
-                                    mInputNumber.setHint(getResources().getString(R.string.incorrect_number));
+                mFirebaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.child(mEditTextNumber.getText().toString()).exists()) {
+                            String password = dataSnapshot.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).getValue().toString();
+                            String buff = mEditTextPassword.getText().toString();
+                            if (password.equals(buff)) {
+                                Intent intent = getIntent();
+                                intent.putExtra("number", mEditTextNumber.getText().toString());
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            } else {
+                                mInputPassword.setHint(getResources().getString(R.string.incorrect_password));
                             }
 
-                            @Override
-                            public void onCancelled(FirebaseError firebaseError) {
+                        } else
+                            mInputNumber.setHint(getResources().getString(R.string.incorrect_number));
+                    }
 
-                            }
-                        });
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
 
                 break;
             case R.id.button_registration:
-                startActivityForResult(new Intent(this, Registration_activity.class),1);
+                startActivityForResult(new Intent(this, Registration_activity.class), 1);
 
                 break;
         }
     }
 
     @Override
-    public void onBackPressed (){
+    public void onBackPressed() {
         super.onBackPressed();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == 1) {

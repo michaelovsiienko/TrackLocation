@@ -94,7 +94,6 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         final TextView childTextView = (TextView) convertView.findViewById(R.id.childTextView);
         final CheckBox childCheckBox = (CheckBox) convertView.findViewById(R.id.childViewCheckBox);
         childCheckBox.setFocusable(false);
-        childCheckBox.setChecked(false);
         childTextView.setText(getChild(groupPosition, childPosition).toString());
 
         String bufferMyPassword = MainActivity.mDataSnapshot
@@ -104,6 +103,7 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         String bufferFriendPassword = MainActivity.mDataSnapshot
                 .child(childTextView.getText().toString())
                 .child(Constants.PASSWORD).getValue().toString();
+
         TextView oldPassword = (TextView) convertView.findViewById(R.id.oldPasschildTextView);
 
         if (!bufferMyPassword.equals(bufferFriendPassword)) {
@@ -123,10 +123,8 @@ class ExpListAdapter extends BaseExpandableListAdapter {
                     Singleton.getInstance().getSelectedUsers().remove(childTextView.getText().toString());
             }
         });
-        List<String> selectedUsers = Singleton.getInstance().getSelectedUsers();
-        if (selectedUsers.contains(childTextView.getText().toString())) {
-            childCheckBox.setChecked(true);
-        }
+
+
         return convertView;
     }
 

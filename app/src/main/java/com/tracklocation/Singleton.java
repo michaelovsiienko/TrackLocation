@@ -41,11 +41,12 @@ public class Singleton {
     public DataSnapshot getDataSnapshot() {
         return this.mDataSnapshot;
     }
-    public void setmUserPhone (String userPhone)
-    {
+
+    public void setmUserPhone(String userPhone) {
         this.mUserPhone = userPhone;
     }
-    public String getmUserPhone (){
+
+    public String getmUserPhone() {
         return this.mUserPhone;
     }
 
@@ -57,23 +58,27 @@ public class Singleton {
         return this.mUsersGroups;
     }
 
-    public void setmUserFriendListGroup (List<String> userFriendListGroup){
+    public void setmUserFriendListGroup(List<String> userFriendListGroup) {
         this.mUserFriendListGroup = userFriendListGroup;
     }
-    public List<String> getmUserFriendListGroup (){
+
+    public List<String> getmUserFriendListGroup() {
         return this.mUserFriendListGroup;
     }
-    public void setmUserFriendList (List<String> userFriendList){
+
+    public void setmUserFriendList(List<String> userFriendList) {
         this.mUserFriendList = userFriendList;
     }
-    public List<String> getmUserFriendList () {
+
+    public List<String> getmUserFriendList() {
         return this.mUserFriendList;
     }
-    public void clearAll (){
-         List<String> mSelectedUsers = new ArrayList<>();
-         List<String> mUsersGroups = new ArrayList<>();
-         List<String> mUserFriendListGroup = new ArrayList<>();
-         List<String> mUserFriendList = new ArrayList<>();
+
+    public void clearAll() {
+        List<String> mSelectedUsers = new ArrayList<>();
+        List<String> mUsersGroups = new ArrayList<>();
+        List<String> mUserFriendListGroup = new ArrayList<>();
+        List<String> mUserFriendList = new ArrayList<>();
     }
 
 }

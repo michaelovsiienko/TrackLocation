@@ -29,8 +29,8 @@ public class FirebaseManager {
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null)
-                mDataSnapshot = dataSnapshot;
+                if (dataSnapshot != null)
+                    mDataSnapshot = dataSnapshot;
             }
 
             @Override
@@ -42,9 +42,11 @@ public class FirebaseManager {
             Singleton.getInstance().setDataSnapshot(mDataSnapshot);
         return mDataSnapshot;
     }
+
     private boolean flag;
+
     public boolean userExists(final String numberPhone) {
-          flag = true;
+        flag = true;
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -56,11 +58,11 @@ public class FirebaseManager {
 
             }
         });
-        return  flag;
+        return flag;
     }
 
     public List<String> getUserGroups(final String numberPhone) {
-       final List<String> usersGroups = new ArrayList<>();
+        final List<String> usersGroups = new ArrayList<>();
 
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -83,7 +85,7 @@ public class FirebaseManager {
     }
 
     public List<String> getUserFriendListGroup(final String numberPhone) {
-       final List<String> mUsersFriendListGroups = new ArrayList<>();
+        final List<String> mUsersFriendListGroups = new ArrayList<>();
 
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override

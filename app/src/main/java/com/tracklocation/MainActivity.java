@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Location mMyLocation;
     private LocationManager mLocationManager;
     private ToggleButton mTrackMyLocation;
+    private GoogleMap mGoogleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             mSharedPreferences = getPreferences(MODE_PRIVATE);
             mUserPhoneNumber = mSharedPreferences.getString("number", "");
+            Singleton.getInstance().setmUserPhone(mUserPhoneNumber);
         }
         setContentView(R.layout.activity_main);
         Firebase.setAndroidContext(getApplicationContext());
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (mUserPhoneNumber != null) {
             mUserGroups = mFirebaseManager.getUserGroups(mUserPhoneNumber);
             mUserFriendList = mFirebaseManager.getUserFriendList(mUserPhoneNumber);
+            Singleton.getInstance().setmUserFriendList(mUserFriendList);
             mUserFriendListGroup = mFirebaseManager.getUserFriendListGroup(mUserPhoneNumber);
             mMapFragment.getMapAsync(this);
             mFirebaseRef.addValueEventListener(new ValueEventListener() {
@@ -99,9 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot != null) {
                         mDataSnapshot = dataSnapshot;
-                        Singleton.getInstance().setDataSnapshot(mDataSnapshot);
-                        mNavigationViewHeaderPassword.setText(dataSnapshot.child(mUserPhoneNumber)
-                                .child(Constants.PASSWORD).getValue().toString());
+                        mNavigationViewHeaderPassword.setText(getResources().getString(R.string.header_password));
                         mNavigationViewHeaderNumber.setText(mUserPhoneNumber);
                         mNavigationViewHeaderNickname.setText(dataSnapshot.child(mUserPhoneNumber)
                                 .child(Constants.NICKNAME).getValue().toString());
@@ -148,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.putString("number", "");
                 editor.apply();
                 Singleton.getInstance().clearAll();
+                if (mGoogleMap != null)
+                    mGoogleMap.clear();
                 startActivityForResult(new Intent(this, Login_activity.class), 1);
                 break;
         }
@@ -155,36 +158,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    private boolean checkPermission() {
+
+        return !(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED);
+    }
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        if (mMyLocation != null) {
-            googleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(mMyLocation.getLatitude(), mMyLocation.getLongitude()))
-                    .title(mUserPhoneNumber)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        mGoogleMap = googleMap;
+        if (checkPermission()) {
+            mGoogleMap.setMyLocationEnabled(true);
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+        mGoogleMap.getUiSettings().setCompassEnabled(true);
+
         if (Singleton.getInstance().getSelectedUsers() != null)
             mFirebaseRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
                     List<String> mSelectedUsers = Singleton.getInstance().getSelectedUsers();
-                    googleMap.clear();
+                    mGoogleMap.clear();
                     for (int i = 0; i < mSelectedUsers.size(); i++) {
 
-                        googleMap.addMarker(new MarkerOptions()
+                        mGoogleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLatitude(), getUserLocation(mSelectedUsers.get(i), dataSnapshot).getLongitude()))
                                 .title(mSelectedUsers.get(i)));
                     }
-                    if (mMyLocation != null)
-                        googleMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(mMyLocation.getLatitude(), mMyLocation.getLongitude()))
-                                .title(mUserPhoneNumber)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-
                 }
-
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
 
@@ -228,9 +229,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onClick(View v) {
-        mNavigationViewHeaderPassword.setText(generatePassword());
-        mFirebaseRef.child(mUserPhoneNumber).child(Constants.PASSWORD)
-                .setValue(mNavigationViewHeaderPassword.getText());
+        ResetPasswordFragment resetPasswordFragment = ResetPasswordFragment.newInstance();
+        resetPasswordFragment.show(getFragmentManager().beginTransaction(), "dialog");
     }
 
     @Override
@@ -307,9 +307,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerToggle.syncState();
     }
 
-    private String generatePassword() {
-        String password;
-        password = PasswordGenerate.generatePass();
-        return password;
-    }
+
 }

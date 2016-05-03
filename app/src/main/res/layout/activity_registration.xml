@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include layout="@layout/toolbar" />
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
@@ -14,169 +15,51 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="16dp"
         android:paddingTop="@dimen/activity_vertical_margin"
+        android:id="@+id/layout_registration"
         tools:context="com.projectv01.registration">
 
-        <TableRow
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/numberPhone_registrationlayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp">
-
-            <TextView
-                android:id="@+id/textView6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/infoString"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold" />
-        </TableRow>
-
-        <View
-            android:layout_height="1dp"
-            android:layout_width="match_parent"
-            />
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/number"
             >
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/number"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold"
-                android:gravity="center_vertical" />
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_name_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-              >
             <EditText
-                android:id="@+id/editText"
-                android:layout_width="200dp"
-                android:layout_height="match_parent"
-                android:paddingTop="0dp"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/numberPhone_registration"
+                android:inputType="phone" />
             </android.support.design.widget.TextInputLayout>
 
-        </TableRow>
-        <View
-            android:layout_height="1dp"
+        <LinearLayout
             android:layout_width="match_parent"
-            />
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/password_registrationlayout"
+            android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/password_generate"
                 android:layout_weight="1"
-                android:text="@string/name"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold" />
-
+                android:visibility="gone">
             <EditText
-                android:id="@+id/editText2"
-                android:layout_width="200dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:id="@+id/password_registration"
                 />
-        </TableRow>
-        <View
-            android:layout_height="1dp"
-            android:layout_width="match_parent"
-            />
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp">
+            </android.support.design.widget.TextInputLayout>
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/password_generate"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold" />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/textView3"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="@string/password_button" />
+    </LinearLayout>
 
-        </TableRow>
-        <View
-            android:layout_height="1dp"
-            android:layout_width="match_parent"
-            />
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp">
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/ic_done_black_24dp"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:id="@+id/doneButton_registration" />
 
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/password"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        </TableRow>
-        <View
-            android:layout_height="1dp"
-            android:layout_width="match_parent"
-            />
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="40dp"
-            android:gravity="center_horizontal"
-            >
-
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_span="2"
-                android:onClick="onClick"
-                android:text="@string/registration" />
-        </TableRow>
-
-    </TableLayout>
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

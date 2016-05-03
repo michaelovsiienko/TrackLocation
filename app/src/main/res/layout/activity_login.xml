@@ -33,7 +33,8 @@
                 android:layout_weight="1"
                 android:text="@string/infoString"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:inputType="phone" />
         </TableRow>
 
         <View
@@ -95,14 +96,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/login"
                 android:id="@+id/button_login"
-                android:layout_weight="1" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/activity_horizontal_margin">
+                android:layout_weight="1"
+                android:layout_margin="@dimen/activity_vertical_margin" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -110,7 +105,8 @@
                 android:text="@string/registration"
                 android:id="@+id/button_registration"
                 android:layout_weight="1"
-                android:textColor="#eceef1"/>
+                android:layout_margin="@dimen/activity_vertical_margin" />
+
         </TableRow>
 
     </TableLayout>

@@ -31,19 +31,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/header_password_"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:layout_span="1" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/header_password_"
+            android:text="@string/header_password"
             android:layout_weight="1"
             android:textStyle="bold"
             android:id="@+id/textViewHeaderPassword"
-            android:gravity="center_horizontal"
+            android:gravity="center_horizontal|right"
             android:layout_span="1" />
 
         <ImageButton

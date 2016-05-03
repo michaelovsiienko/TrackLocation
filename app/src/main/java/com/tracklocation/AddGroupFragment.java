@@ -18,10 +18,12 @@ import com.firebase.client.Firebase;
  */
 public class AddGroupFragment extends DialogFragment implements DialogInterface.OnClickListener {
     private String mNumberPhone;
+
     private Firebase mFirebaseRef;
     private View mView;
     private EditText mNameGroup;
     private TextInputLayout mGroupNameLayout;
+
     public static AddGroupFragment newInstance(String numberPhone) {
         AddGroupFragment addGroupFragment = new AddGroupFragment();
         Bundle arguments = new Bundle();
@@ -29,6 +31,7 @@ public class AddGroupFragment extends DialogFragment implements DialogInterface.
         addGroupFragment.setArguments(arguments);
         return addGroupFragment;
     }
+
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
         mFirebaseRef = new Firebase(Constants.DATABASE_URL);
@@ -51,12 +54,12 @@ public class AddGroupFragment extends DialogFragment implements DialogInterface.
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case Dialog.BUTTON_POSITIVE:
-               int count = (int) Singleton.getInstance().getDataSnapshot().child(mNumberPhone).child(Constants.GROUPS).getChildrenCount();
-                mFirebaseRef.child(mNumberPhone).child(Constants.GROUPS).child( Integer.toString(count+1)).setValue(mNameGroup.getText().toString());
-               // Singleton.getInstance().getSelectedUsers().add(mNameGroup.getText().toString());
+                int count = (int) Singleton.getInstance().getDataSnapshot().child(mNumberPhone).child(Constants.GROUPS).getChildrenCount();
+                mFirebaseRef.child(mNumberPhone).child(Constants.GROUPS).child(Integer.toString(count + 1)).setValue(mNameGroup.getText().toString());
+                // Singleton.getInstance().getSelectedUsers().add(mNameGroup.getText().toString());
                 FriendListFragment.sExpandableListAdapter.addGroup(mNameGroup.getText().toString());
                 //FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
-                Toast.makeText(getActivity(),"Группа успешно добавлена",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Группа успешно добавлена", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

@@ -11,7 +11,7 @@
     <string name="infoString">Введите данные:</string>
     <string name="hint">Номер существует</string>
     <string name="contacts">Контакты</string>
-    <string name="header_password_">Пароль:</string>
+    <string name="header_password">Обновить пароль</string>
     <string name="login">Войти</string>
     <string name="incorrect_number">Не верный номер</string>
     <string name="incorrect_password">Не верный пароль</string>
@@ -23,10 +23,13 @@
     <string name="cancel_dialogfragment">Отмена</string>
     <string name="group_dialogfragment">Группа</string>
     <string name="succes">Друг добавлен успешно!</string>
+    <string name="succes_reset">Пароль обновлен!</string>
     <string name="chanche">Замена</string>
-    <string name="chanche_passTittle">Введите новые пароли</string>
+    <string name="chanche_passTittle">Введите пароль</string>
     <string name="chanche_password">Смена пароля</string>
     <string name="old_password">Пароль устарел</string>
     <string name="trackMyLocation">Отслеживать меня</string>
     <string name="review">Просмотр на карте</string>
+    <string name="update">Обновить</string>
+    <string name="havefriend">Друг с этим номером уже существует</string>
 </resources>

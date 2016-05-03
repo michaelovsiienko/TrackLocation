@@ -25,7 +25,7 @@ public class IncorrectPasswordFragment extends DialogFragment implements DialogI
     public static IncorrectPasswordFragment newInstance(String friendNumberPhone, String myNumberPhone) {
         IncorrectPasswordFragment incorrectPasswordFragment = new IncorrectPasswordFragment();
         Bundle arguments = new Bundle();
-        arguments.putString(Constants.FRIEND_NUMBER,  friendNumberPhone);
+        arguments.putString(Constants.FRIEND_NUMBER, friendNumberPhone);
         arguments.putString(Constants.PHONE_NUM_ARG, myNumberPhone);
         incorrectPasswordFragment.setArguments(arguments);
         return incorrectPasswordFragment;
@@ -41,9 +41,9 @@ public class IncorrectPasswordFragment extends DialogFragment implements DialogI
         }
         mView = layoutInflater.inflate(R.layout.frament_incorrectpassword, null);
 
-        TextView title = (TextView)mView.findViewById(R.id.numberPhone_incorrectPassword);
-        mNewPassword = (EditText)mView.findViewById(R.id.passwordFriend_fragmentIncorrect);
-        mInputPasswordLayout = (TextInputLayout)mView.findViewById(R.id.passwordfriend_fragmentIncorrectLayout);
+        TextView title = (TextView) mView.findViewById(R.id.numberPhone_incorrectPassword);
+        mNewPassword = (EditText) mView.findViewById(R.id.passwordFriend_fragmentIncorrect);
+        mInputPasswordLayout = (TextInputLayout) mView.findViewById(R.id.passwordfriend_fragmentIncorrectLayout);
         title.setText(mFriendPhone);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(getResources().getString(R.string.chanche_password))
@@ -57,13 +57,13 @@ public class IncorrectPasswordFragment extends DialogFragment implements DialogI
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case Dialog.BUTTON_POSITIVE:
-                    if (mNewPassword.getText().toString().equals(Singleton.getInstance().getDataSnapshot().child(mFriendPhone).child(Constants.PASSWORD).getValue().toString())) {
-                        mFirebaseRef.child(myNumberPhone)
-                                .child(Constants.FRIENDS)
-                                .child(mFriendPhone).child(Constants.PASSWORD).setValue(mNewPassword.getText().toString());
-                    } else {
-                        mInputPasswordLayout.setHint(getResources().getString(R.string.incorrect_password));
-                    }
+                if (mNewPassword.getText().toString().equals(Singleton.getInstance().getDataSnapshot().child(mFriendPhone).child(Constants.PASSWORD).getValue().toString())) {
+                    mFirebaseRef.child(myNumberPhone)
+                            .child(Constants.FRIENDS)
+                            .child(mFriendPhone).child(Constants.PASSWORD).setValue(mNewPassword.getText().toString());
+                } else {
+                    mInputPasswordLayout.setHint(getResources().getString(R.string.incorrect_password));
+                }
                 break;
         }
 

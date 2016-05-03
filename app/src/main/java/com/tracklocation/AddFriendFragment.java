@@ -41,7 +41,7 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
     private EditText numberFriend;
     private EditText passwordFriend;
 
-    private FirebaseManager mFirebaseHelper;
+    private AlertDialog mDialog;
     public static AddFriendFragment newInstance(String numberPhone, List<String> usersGroups) {
         AddFriendFragment addFriendFragment = new AddFriendFragment();
         Bundle arguments = new Bundle();
@@ -54,7 +54,6 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
         mFirebaseRef = new Firebase(Constants.DATABASE_URL);
-        mFirebaseHelper = new FirebaseManager(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         if (getArguments() != null) {
             mPhoneNumberArgument = getArguments().getString(Constants.PHONE_NUM_ARG);
@@ -70,7 +69,6 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
 
         numberFriend = (EditText) mView.findViewById(R.id.namefriend_fragmentAddFriend);
         passwordFriend = (EditText) mView.findViewById(R.id.passwordFriend_fragmentAddFriend);
-
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
@@ -89,43 +87,54 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
 
         return builder.create();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDialog = (AlertDialog) getDialog();
+        mDialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseManager firebaseManager = new FirebaseManager(getActivity());
+                final List<String> userFriends = new ArrayList<String>();
+                mFirebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.child(numberFriend.getText().toString()).exists()) {
+                            for (DataSnapshot child : dataSnapshot.child(mPhoneNumberArgument).child(Constants.FRIENDS).getChildren()) {
+                                userFriends.add(child.getKey().toString());
+                            }
+                            if (!userFriends.contains(numberFriend.getText().toString())) {
+                                String buffer = passwordFriend.getText().toString();
+                                if (dataSnapshot != null)
+                                    password = dataSnapshot.child(numberFriend.getText().toString()).child(Constants.PASSWORD).getValue().toString();
+                                if (password.equals(buffer)) {
+                                    mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
+                                    mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.PASSWORD).setValue(password);
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.succes), Toast.LENGTH_LONG).show();
+                                    mDialog.dismiss();
+                                } else {
+                                    passwordFriendLayout.setHint(getResources().getString(R.string.incorrect_password));
+                                }
+                            } else
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.havefriend),
+                                        Toast.LENGTH_SHORT).show();
+                        } else
+                            numberPhoneFriendLayout.setHint(getResources().getString(R.string.incorrect_number));
+                        }
 
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+            }
+        });
+    }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        switch (which) {
-            case Dialog.BUTTON_POSITIVE:
-            mFirebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if ( dataSnapshot.child(numberFriend.getText().toString()).exists() ) {
-                        String buffer = passwordFriend.getText().toString();
-                        if (dataSnapshot!=null)
-                            password = dataSnapshot.child(numberFriend.getText().toString()).child(Constants.PASSWORD).getValue().toString();
-                        if (password.equals(buffer) ) {
-                            mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
-                            mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.PASSWORD).setValue(password);
-
-                            // FriendListFragment.sExpandableList.addContactToGroup(mSpinner.getSelectedItem().toString(),numberFriend.getText().toString());
-                            // FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();
-                            Toast.makeText(getActivity(),getResources().getString(R.string.succes),Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            passwordFriendLayout.setHint(getResources().getString(R.string.incorrect_password));
-                        }
-                    }
-                    else
-                        numberPhoneFriendLayout.setHint(getResources().getString(R.string.incorrect_number));
-
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
-                break;
-        }
     }
 
 }

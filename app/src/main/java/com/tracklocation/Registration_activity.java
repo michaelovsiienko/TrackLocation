@@ -2,7 +2,11 @@ package com.tracklocation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -10,27 +14,44 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Digits;
+import com.mobsandgeeks.saripaar.annotation.NotEmpty;
+import com.mobsandgeeks.saripaar.annotation.Password;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Registration_activity extends AppCompatActivity {
+public class Registration_activity extends AppCompatActivity implements View.OnClickListener, Validator.ValidationListener {
     private Toolbar mToolbar;
     private Firebase mFirebaseRef;
-    private TextInputLayout mInputNumber;
-    private EditText mEditTextNumber;
-    private EditText mEditTextNickname;
-    private TextView mTextViewPassword;
-    private Button mButtonGenerate;
-    private Button mButtonRegistration;
-    private boolean isGenerate = false;
+
     private ArrayList<String> listNumbers;
 
+    private FloatingActionButton mActionButtonDone;
+
+    @NotEmpty
+    private EditText mEditTextNumber;
+
+    @NotEmpty
+    @Password
+    private EditText mEditTextPassword;
+
+    private ViewPropertyAnimatorCompat mViewAnimator;
+
+    private boolean mIsPhoneConfirm;
+
+    private Validator mValidator;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,16 +60,14 @@ public class Registration_activity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(getResources().getString(R.string.registration));
         setSupportActionBar(mToolbar);
-        mEditTextNickname = (EditText) findViewById(R.id.editText2);
-        mEditTextNumber = (EditText) findViewById(R.id.editText);
-        mTextViewPassword = (TextView) findViewById(R.id.textView5);
-        mButtonGenerate = (Button) findViewById(R.id.button);
-        mButtonRegistration = (Button) findViewById(R.id.button2);
-        mInputNumber = (TextInputLayout) findViewById(R.id.input_name_layout);
-        mButtonRegistration.setEnabled(false);
-        mButtonGenerate.setEnabled(false);
+
         Firebase.setAndroidContext(getApplicationContext());
-        mFirebaseRef = new Firebase("https://boiling-torch-9376.firebaseio.com/");
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
+
+        mActionButtonDone = (FloatingActionButton) findViewById(R.id.doneButton_registration);
+        mActionButtonDone.setOnClickListener(this);
+        mEditTextNumber = (EditText) findViewById(R.id.numberPhone_registration);
+        mEditTextPassword = (EditText) findViewById(R.id.password_registration);
 
         listNumbers = new ArrayList<>();
         mFirebaseRef.addValueEventListener(new ValueEventListener() {
@@ -59,93 +78,108 @@ public class Registration_activity extends AppCompatActivity {
                     listNumbers.add(child.getKey());
                 }
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
             }
         });
-
+        mValidator = new Validator(this);
+        mValidator.setValidationListener(this);
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mEditTextNickname.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (mEditTextNumber.getTextSize() != 0)
-                    mButtonGenerate.setEnabled(true);
-            }
-        });
-        mEditTextNumber.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mInputNumber.setHint(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        android.os.Process.killProcess(android.os.Process.myPid());
-    }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button:
-                mTextViewPassword.setText(generatePassword());
-                mButtonRegistration.setEnabled(true);
-                break;
-            case R.id.button2:
-                if (!listNumbers.contains(mEditTextNumber.getText().toString())) {
-                    registration();
-                    finish();
-                } else {
-                    mInputNumber.setHint(getResources().getString(R.string.hint));
-                }
-                break;
-        }
-    }
-
-    public String generatePassword() {
-        String password;
-        password = PasswordGenerate.generatePass();
-        return password;
     }
 
     public void registration() {
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mTextViewPassword.getText());
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.NICKNAME).setValue(mEditTextNickname.getText().toString());
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(30);
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(30);
+        if (listNumbers != null) {
+            if (!listNumbers.contains(mEditTextNumber.getText().toString())) {
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mEditTextPassword.getText());
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(30);
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(30);
 
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
-        mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("3").setValue("Работа");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("3").setValue("Работа");
 
-        Intent intent = getIntent();
-        intent.putExtra("number", mEditTextNumber.getText().toString());
-        setResult(RESULT_OK, intent);
-        finish();
+                Intent intent = getIntent();
+                intent.putExtra("number", mEditTextNumber.getText().toString());
+                setResult(RESULT_OK, intent);
+                finish();
+            } else {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.hint), Toast.LENGTH_SHORT).show();
+                mEditTextNumber.setEnabled(true);
+                mEditTextNumber.setFocusable(true);
+                mEditTextNumber.setFocusableInTouchMode(true);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.doneButton_registration:
+                confirmData();
+                break;
+        }
+
+    }
+
+    private void confirmData() {
+        if (!mIsPhoneConfirm) {
+            confirmPhoneNumber();
+            return;
+        }
+        mValidator.validate();
+    }
+
+    private void updateUi() {
+        showRegistrationCodeView();
+        changeConfirmButton();
+    }
+
+    private void showRegistrationCodeView() {
+        View registrationCodeView = findViewById(R.id.password_registrationlayout);
+        registrationCodeView.setVisibility(View.VISIBLE);
+
+        mViewAnimator = ViewCompat.animate(registrationCodeView);
+        mViewAnimator.setDuration(300).alpha(1);
+
+        mEditTextNumber.setEnabled(false);
+        mEditTextNumber.setFocusable(false);
+        mEditTextNumber.setFocusableInTouchMode(false);
+    }
+
+    private void changeConfirmButton() {
+        mViewAnimator = ViewCompat.animate(mActionButtonDone);
+        mViewAnimator.setDuration(300).alpha(0).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mActionButtonDone.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_done_all_black_24dp)
+                );
+                mViewAnimator.setDuration(300).alpha(1);
+            }
+        });
+    }
+
+    private void confirmPhoneNumber() {
+        mIsPhoneConfirm = true;
+        mEditTextPassword.setText(PasswordGenerate.generatePass());
+        updateUi();
+    }
+
+    @Override
+    public void onValidationSucceeded() {
+        registration();
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+
     }
 }
