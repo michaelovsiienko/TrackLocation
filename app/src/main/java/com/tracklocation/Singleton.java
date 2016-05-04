@@ -42,11 +42,11 @@ public class Singleton {
         return this.mDataSnapshot;
     }
 
-    public void setmUserPhone(String userPhone) {
+    public void setUserPhone(String userPhone) {
         this.mUserPhone = userPhone;
     }
 
-    public String getmUserPhone() {
+    public String getUserPhone() {
         return this.mUserPhone;
     }
 

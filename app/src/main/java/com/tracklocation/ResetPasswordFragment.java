@@ -8,13 +8,10 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -56,7 +53,7 @@ public class ResetPasswordFragment extends DialogFragment implements DialogInter
         mNewPasswordInputLayout = (TextInputLayout) mView.findViewById(R.id.password_fragmentResetPasswordLayout);
         mNewPasswordText = (EditText) mView.findViewById(R.id.newPassword_fragmentResetPassword);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle(getResources().getString(R.string.add_group_tittle))
+                .setTitle(getResources().getString(R.string.chanche_password))
                 .setView(mView)
                 .setNegativeButton(R.string.cancel_dialogfragment, this)
                 .setPositiveButton(R.string.update, this);
@@ -113,7 +110,7 @@ public class ResetPasswordFragment extends DialogFragment implements DialogInter
         Toast.makeText(getActivity(), getResources().getString(R.string.succes_reset), Toast.LENGTH_LONG).show();
         mFirebaseRef
                 .child(Singleton.getInstance()
-                        .getmUserPhone())
+                        .getUserPhone())
                 .child(Constants.PASSWORD)
                 .setValue(mNewPasswordText.getText().toString());
         mDialog.dismiss();

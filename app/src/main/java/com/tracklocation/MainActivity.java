@@ -21,8 +21,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.firebase.client.DataSnapshot;
@@ -32,19 +35,30 @@ import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener, View.OnClickListener, AdapterView.OnItemClickListener {
     private NavigationView mNavigationView;
     private TextView mNavigationViewHeaderNickname;
     private TextView mNavigationViewHeaderNumber;
     private TextView mNavigationViewHeaderPassword;
     private ImageButton mNavigationViewHeaderResetPassword;
     private View mNavigationViewHeaderView;
+    private AutoCompleteTextView mAutoCompleteTextView;
 
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -75,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             mSharedPreferences = getPreferences(MODE_PRIVATE);
             mUserPhoneNumber = mSharedPreferences.getString("number", "");
-            Singleton.getInstance().setmUserPhone(mUserPhoneNumber);
+            Singleton.getInstance().setUserPhone(mUserPhoneNumber);
         }
         setContentView(R.layout.activity_main);
         Firebase.setAndroidContext(getApplicationContext());
@@ -86,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.GoogleMapFragment);
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        mAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autocompletetextview);
+        mAutoCompleteTextView.setThreshold(4);
+        mAutoCompleteTextView.setAdapter(new GooglePlacesAutocompleteAdapter(this, R.layout.maps_places_listview));
+        mAutoCompleteTextView.setOnItemClickListener(this);
 
     }
 
@@ -133,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout.closeDrawer(GravityCompat.START);
         switch (menuItem.getItemId()) {
             case R.id.navigation_item_contacts:
-                Singleton.getInstance().setmUserPhone(mUserPhoneNumber);
+                Singleton.getInstance().setUserPhone(mUserPhoneNumber);
                 prepareFragment(FriendListFragment.newInstance(mUserPhoneNumber
                         , mUserGroups
                         , mUserFriendList
@@ -229,23 +247,95 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onClick(View v) {
-        ResetPasswordFragment resetPasswordFragment = ResetPasswordFragment.newInstance();
-        resetPasswordFragment.show(getFragmentManager().beginTransaction(), "dialog");
+        switch (v.getId()) {
+            case R.id.imageButtonPassword:
+                ResetPasswordFragment resetPasswordFragment = ResetPasswordFragment.newInstance();
+                resetPasswordFragment.show(getFragmentManager().beginTransaction(), "dialog");
+                break;
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+        mMenu = menu;
         return true;
     }
 
+    private Menu mMenu;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.add_menu_item) {
-            AddFriendFragment addFriendFragment = AddFriendFragment.newInstance(mUserPhoneNumber, mUserGroups);
-            addFriendFragment.show(getFragmentManager().beginTransaction(), "dialog");
+        switch (item.getItemId()) {
+            case R.id.add_menu_item:
+                AddFriendFragment addFriendFragment = AddFriendFragment.newInstance(mUserPhoneNumber, mUserGroups);
+                addFriendFragment.show(getFragmentManager().beginTransaction(), "dialog");
+                break;
+            case R.id.search:
+                findViewById(R.id.autocompletetextview).setVisibility(View.VISIBLE);
+                mMenu.findItem(R.id.add_menu_item).setVisible(false);
+                mMenu.findItem(R.id.clear).setVisible(true);
+                break;
+            case R.id.clear:
+                findViewById(R.id.autocompletetextview).setVisibility(View.GONE);
+                mMenu.findItem(R.id.add_menu_item).setVisible(true);
+                mMenu.findItem(R.id.clear).setVisible(false);
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static ArrayList<String> autocomplete(String input) {
+        ArrayList<String> resultList = null;
+
+        HttpURLConnection conn = null;
+        StringBuilder jsonResults = new StringBuilder();
+        try {
+            StringBuilder sb = new StringBuilder(Constants.PLACES_API_BASE + Constants.TYPE_AUTOCOMPLETE + Constants.OUT_JSON);
+            sb.append("?key=" + Constants.API_KEY);
+            sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+
+            URL url = new URL(sb.toString());
+
+            System.out.println("URL: " + url);
+            conn = (HttpURLConnection) url.openConnection();
+            InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+            // Load the results into a StringBuilder
+            int read;
+            char[] buff = new char[1024];
+            while ((read = in.read(buff)) != -1) {
+                jsonResults.append(buff, 0, read);
+            }
+        } catch (MalformedURLException e) {
+            Log.e(Constants.LOG_TAG, "Error processing Places API URL", e);
+            return resultList;
+        } catch (IOException e) {
+            Log.e(Constants.LOG_TAG, "Error connecting to Places API", e);
+            return resultList;
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+
+        try {
+
+            // Create a JSON object hierarchy from the results
+            JSONObject jsonObj = new JSONObject(jsonResults.toString());
+            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+
+            // Extract the Place descriptions from the results
+            resultList = new ArrayList<String>(predsJsonArray.length());
+            for (int i = 0; i < predsJsonArray.length(); i++) {
+                System.out.println(predsJsonArray.getJSONObject(i).getString("description"));
+                System.out.println("============================================================");
+                resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
+            }
+        } catch (JSONException e) {
+            Log.e(Constants.LOG_TAG, "Cannot process JSON results", e);
+        }
+
+        return resultList;
     }
 
     @Override
@@ -301,11 +391,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeDrawerLayout() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
     }
 
 
+    @Override
+    public void onItemClick(AdapterView parent, View view, int position, long id) {
+        String str = (String) parent.getItemAtPosition(position);
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
 }

@@ -97,7 +97,7 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         childTextView.setText(getChild(groupPosition, childPosition).toString());
 
         String bufferMyPassword = MainActivity.mDataSnapshot
-                .child(Singleton.getInstance().getmUserPhone())
+                .child(Singleton.getInstance().getUserPhone())
                 .child(Constants.FRIENDS).child(childTextView.getText().toString())
                 .child(Constants.PASSWORD).getValue().toString();
         String bufferFriendPassword = MainActivity.mDataSnapshot
