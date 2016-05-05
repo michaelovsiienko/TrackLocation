@@ -1,13 +1,19 @@
 package com.tracklocation;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -15,12 +21,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
@@ -32,28 +38,33 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.net.InetAddress;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener, View.OnClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener, View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
     private NavigationView mNavigationView;
-    private TextView mNavigationViewHeaderNickname;
     private TextView mNavigationViewHeaderNumber;
     private TextView mNavigationViewHeaderPassword;
     private ImageButton mNavigationViewHeaderResetPassword;
@@ -80,10 +91,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LocationManager mLocationManager;
     private ToggleButton mTrackMyLocation;
     private GoogleMap mGoogleMap;
+    private GoogleApiClient mGoogleApiClient;
+    private GooglePlacesAutocompleteAdapter mAdapter;
+    private LocationRequest mLocationRequest;
+    private PendingResult<LocationSettingsResult> result;
+    private String mBestProvider;
+    private ProgressDialog mProgressDialog;
+
+    final static int REQUEST_LOCATION = 199;
+    private boolean mStopThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!isInternetAvailable())
+            Toast.makeText(this, getString(R.string.internet_info), Toast.LENGTH_LONG).show();
         if (isNeedLogin()) {
             startActivityForResult(new Intent(this, Login_activity.class), 1);
         } else {
@@ -91,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mUserPhoneNumber = mSharedPreferences.getString("number", "");
             Singleton.getInstance().setUserPhone(mUserPhoneNumber);
         }
+
         setContentView(R.layout.activity_main);
         Firebase.setAndroidContext(getApplicationContext());
         initializeNavigationView();
@@ -101,44 +124,93 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.GoogleMapFragment);
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         mAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autocompletetextview);
+
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
+        mGoogleApiClient.connect();
+
         mAutoCompleteTextView.setThreshold(4);
-        mAutoCompleteTextView.setAdapter(new GooglePlacesAutocompleteAdapter(this, R.layout.maps_places_listview));
+        mAdapter = new GooglePlacesAutocompleteAdapter(this, mGoogleApiClient, null, null);
+        mAutoCompleteTextView.setAdapter(mAdapter);
         mAutoCompleteTextView.setOnItemClickListener(this);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(getString(R.string.loading_tittle));
+        mProgressDialog.setMessage(getString(R.string.loading_message));
+        mProgressDialog.setCancelable(false);
+        mStopThread = false;
 
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         if (mUserPhoneNumber != null) {
+            mFirebaseRef.child(mUserPhoneNumber).child(Constants.STATUS).setValue("online");
             mUserGroups = mFirebaseManager.getUserGroups(mUserPhoneNumber);
             mUserFriendList = mFirebaseManager.getUserFriendList(mUserPhoneNumber);
             Singleton.getInstance().setmUserFriendList(mUserFriendList);
             mUserFriendListGroup = mFirebaseManager.getUserFriendListGroup(mUserPhoneNumber);
+            Criteria crit = new Criteria();
+            crit.setAccuracy(Criteria.ACCURACY_FINE);
+            mBestProvider = mLocationManager.getBestProvider(crit, false);
+            if (checkPermission()) {
+                mLocationManager.requestLocationUpdates(mBestProvider, 1000, 1, this);
+                if (mTrackMyLocation.isChecked() && mLocationManager.getLastKnownLocation(mBestProvider) != null) {
+                    mFirebaseRef.child(mUserPhoneNumber).child("first")
+                            .setValue(mLocationManager.getLastKnownLocation(mBestProvider).getLatitude());
+                    mFirebaseRef.child(mUserPhoneNumber).child("second")
+                            .setValue(mLocationManager.getLastKnownLocation(mBestProvider).getLongitude());
+                }
+            }
+            mProgressDialog.show();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (!mStopThread) ;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mProgressDialog.isShowing())
+                                mProgressDialog.dismiss();
+                        }
+                    });
+                }
+            }).start();
+
             mMapFragment.getMapAsync(this);
             mFirebaseRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot != null) {
-                        mDataSnapshot = dataSnapshot;
-                        mNavigationViewHeaderPassword.setText(getResources().getString(R.string.header_password));
-                        mNavigationViewHeaderNumber.setText(mUserPhoneNumber);
-                        mNavigationViewHeaderNickname.setText(dataSnapshot.child(mUserPhoneNumber)
-                                .child(Constants.NICKNAME).getValue().toString());
-                    }
+
+                    mDataSnapshot = dataSnapshot;
+                    mNavigationViewHeaderPassword.setText(getResources().getString(R.string.header_password));
+                    mNavigationViewHeaderNumber.setText(mUserPhoneNumber);
+
+                    mStopThread = true;
+
                 }
 
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
                 }
             });
-            if (ActivityCompat.checkSelfPermission(
-                    getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    &&
-                    ActivityCompat.checkSelfPermission(
-                            getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
-            }
+
+
         }
+
+    }
+
+    @Override
+    public void onStop() {
+        if (mUserPhoneNumber != null)
+            mFirebaseRef.child(mUserPhoneNumber).child(Constants.STATUS).setValue("offline");
+        super.onStop();
     }
 
     public void reloadMap() {
@@ -180,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return !(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mGoogleMap = googleMap;
@@ -204,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 .title(mSelectedUsers.get(i)));
                     }
                 }
+
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
 
@@ -214,11 +288,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onLocationChanged(Location location) {
         mMyLocation = location;
-        mMapFragment.getMapAsync(this);
         if (mTrackMyLocation.isChecked()) {
             mFirebaseRef.child(mUserPhoneNumber).child("first").setValue(location.getLatitude());
             mFirebaseRef.child(mUserPhoneNumber).child("second").setValue(location.getLongitude());
         }
+        mMapFragment.getMapAsync(this);
+
     }
 
     @Override
@@ -263,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private Menu mMenu;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -271,72 +347,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 addFriendFragment.show(getFragmentManager().beginTransaction(), "dialog");
                 break;
             case R.id.search:
-                findViewById(R.id.autocompletetextview).setVisibility(View.VISIBLE);
+                mAutoCompleteTextView.setVisibility(View.VISIBLE);
+                mAutoCompleteTextView.requestFocus();
                 mMenu.findItem(R.id.add_menu_item).setVisible(false);
                 mMenu.findItem(R.id.clear).setVisible(true);
                 break;
             case R.id.clear:
-                findViewById(R.id.autocompletetextview).setVisibility(View.GONE);
+                mAutoCompleteTextView.setVisibility(View.GONE);
+                mAutoCompleteTextView.setText("");
                 mMenu.findItem(R.id.add_menu_item).setVisible(true);
                 mMenu.findItem(R.id.clear).setVisible(false);
-
+                hideKeyboard(getApplicationContext(), mAutoCompleteTextView);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public static ArrayList<String> autocomplete(String input) {
-        ArrayList<String> resultList = null;
-
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        try {
-            StringBuilder sb = new StringBuilder(Constants.PLACES_API_BASE + Constants.TYPE_AUTOCOMPLETE + Constants.OUT_JSON);
-            sb.append("?key=" + Constants.API_KEY);
-            sb.append("&input=" + URLEncoder.encode(input, "utf8"));
-
-            URL url = new URL(sb.toString());
-
-            System.out.println("URL: " + url);
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            // Load the results into a StringBuilder
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
-            }
-        } catch (MalformedURLException e) {
-            Log.e(Constants.LOG_TAG, "Error processing Places API URL", e);
-            return resultList;
-        } catch (IOException e) {
-            Log.e(Constants.LOG_TAG, "Error connecting to Places API", e);
-            return resultList;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        try {
-
-            // Create a JSON object hierarchy from the results
-            JSONObject jsonObj = new JSONObject(jsonResults.toString());
-            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
-
-            // Extract the Place descriptions from the results
-            resultList = new ArrayList<String>(predsJsonArray.length());
-            for (int i = 0; i < predsJsonArray.length(); i++) {
-                System.out.println(predsJsonArray.getJSONObject(i).getString("description"));
-                System.out.println("============================================================");
-                resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
-            }
-        } catch (JSONException e) {
-            Log.e(Constants.LOG_TAG, "Cannot process JSON results", e);
-        }
-
-        return resultList;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -376,7 +402,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mNavigationView.setNavigationItemSelectedListener(this);
         mNavigationViewHeaderView = mNavigationView.getHeaderView(0);
-        mNavigationViewHeaderNickname = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderNickName);
         mNavigationViewHeaderNumber = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderName);
         mNavigationViewHeaderPassword = (TextView) mNavigationViewHeaderView.findViewById(R.id.textViewHeaderPassword);
         mNavigationViewHeaderResetPassword = (ImageButton) mNavigationViewHeaderView.findViewById(R.id.imageButtonPassword);
@@ -396,10 +421,111 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerToggle.syncState();
     }
 
-
     @Override
     public void onItemClick(AdapterView parent, View view, int position, long id) {
-        String str = (String) parent.getItemAtPosition(position);
-        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        mGoogleMap.clear();
+        final AutocompletePrediction item = mAdapter.getItem(position);
+        final String placeId = item.getPlaceId();
+        final CharSequence primaryText = item.getPrimaryText(null);
+        Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId).setResultCallback(new ResultCallback<PlaceBuffer>() {
+            @Override
+            public void onResult(@NonNull PlaceBuffer places) {
+                final Place myPlace = places.get(0);
+
+                if (myPlace.getPlaceTypes().get(0) == Place.TYPE_COUNTRY)
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 5.0f));
+                else if (myPlace.getPlaceTypes().get(0) == Place.TYPE_CITY_HALL)
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 8.0f));
+                else if (myPlace.getPlaceTypes().get(0) == Place.TYPE_CAFE)
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 14.0f));
+                else if (myPlace.getPlaceTypes().get(0) == Place.TYPE_STREET_ADDRESS)
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 12.0f));
+                else
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 14.0f));
+                mGoogleMap.addMarker(new MarkerOptions()
+                        .position(myPlace.getLatLng())
+                        .title(myPlace.getName().toString())
+                );
+
+            }
+        });
+        hideKeyboard(getApplicationContext(), mAutoCompleteTextView);
+        Log.i(Constants.LOG_TAG, "Autocomplete item selected: " + primaryText);
+        Log.i(Constants.LOG_TAG, placeId);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void hideKeyboard(Context context, View view) {
+        InputMethodManager keyboardManager =
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboardManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates state = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can initialize location
+                        // requests here.
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(
+                                    MainActivity.this, 1000);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    private boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
+
+            if (ipAddr.equals("")) {
+                return false;
+            } else {
+                return true;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 }

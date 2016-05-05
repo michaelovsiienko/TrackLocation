@@ -33,8 +33,7 @@
                 android:layout_weight="1"
                 android:text="@string/infoString"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold"
-                android:inputType="phone" />
+                android:textStyle="bold" />
         </TableRow>
 
         <View
@@ -56,6 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/input_number_login"
+                android:inputType="phone"
                 android:hint="@string/number" />
             </android.support.design.widget.TextInputLayout>
         </TableRow>

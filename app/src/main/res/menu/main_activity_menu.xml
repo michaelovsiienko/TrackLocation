@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/add_menu_item"
         android:title=""
-        android:icon="@drawable/ic_person_add_black_24dp"
+        android:icon="@drawable/ic_person_add"
         app:showAsAction="always"/>
     <item
         android:id="@+id/clear"
         android:title=""
-        android:icon="@drawable/ic_clear_black_24dp"
+        android:icon="@drawable/ic_clear"
         android:visible="false"
         app:showAsAction="always" />
     <item
         android:id="@+id/search"
         android:title=""
-        android:icon="@drawable/ic_search_black_24dp"
+        android:icon="@drawable/ic_search"
         app:showAsAction="always" />
 
 

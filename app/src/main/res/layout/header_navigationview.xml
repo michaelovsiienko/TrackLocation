@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:background="@color/headerBackground"
+    android:background="@drawable/background_navigationheader"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
@@ -15,15 +15,6 @@
         android:textSize="20sp"
         android:gravity="right"
         android:id="@+id/textViewHeaderName" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:textSize="20sp"
-        android:id="@+id/textViewHeaderNickName"
-        android:layout_gravity="right" />
 
     <TableRow android:layout_width="match_parent"
         android:layout_height="wrap_content">

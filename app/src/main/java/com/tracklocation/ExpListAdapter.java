@@ -103,9 +103,16 @@ class ExpListAdapter extends BaseExpandableListAdapter {
         String bufferFriendPassword = MainActivity.mDataSnapshot
                 .child(childTextView.getText().toString())
                 .child(Constants.PASSWORD).getValue().toString();
+        String status = MainActivity.mDataSnapshot
+                .child(childTextView.getText().toString())
+                .child(Constants.STATUS).getValue().toString();
 
         TextView oldPassword = (TextView) convertView.findViewById(R.id.oldPasschildTextView);
-
+        TextView statusTextView = (TextView) convertView.findViewById(R.id.status);
+        if (status.equals("online"))
+            statusTextView.setText("Online");
+        else
+            statusTextView.setText("Offline");
         if (!bufferMyPassword.equals(bufferFriendPassword)) {
             oldPassword.setVisibility(View.VISIBLE);
             childCheckBox.setVisibility(View.GONE);

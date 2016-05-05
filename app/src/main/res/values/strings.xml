@@ -28,8 +28,11 @@
     <string name="chanche_passTittle">Введите пароль</string>
     <string name="chanche_password">Смена пароля</string>
     <string name="old_password">Пароль устарел</string>
-    <string name="trackMyLocation">Отслеживать меня</string>
+    <string name="trackMyLocation">Данные</string>
     <string name="review">Просмотр на карте</string>
     <string name="update">Обновить</string>
     <string name="havefriend">Друг с этим номером уже существует</string>
+    <string name="loading_tittle">Загрузка данных</string>
+    <string name="loading_message">Пожалуйста, подождите</string>
+    <string name="internet_info">Для работы приложения включите интернет!</string>
 </resources>

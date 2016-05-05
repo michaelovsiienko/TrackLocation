@@ -28,6 +28,9 @@ import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Digits;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
+import com.tracklocation.Constants;
+import com.tracklocation.PasswordGenerate;
+import com.tracklocation.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,13 +101,13 @@ public class Registration_activity extends AppCompatActivity implements View.OnC
     public void registration() {
         if (listNumbers != null) {
             if (!listNumbers.contains(mEditTextNumber.getText().toString())) {
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mEditTextPassword.getText());
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mEditTextPassword.getText().toString());
                 mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(30);
                 mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(30);
-
                 mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
                 mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
                 mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("3").setValue("Работа");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.STATUS).setValue("online");
 
                 Intent intent = getIntent();
                 intent.putExtra("number", mEditTextNumber.getText().toString());
@@ -160,7 +163,7 @@ public class Registration_activity extends AppCompatActivity implements View.OnC
             @Override
             public void run() {
                 mActionButtonDone.setImageDrawable(
-                        getResources().getDrawable(R.drawable.ic_done_all_black_24dp)
+                        getResources().getDrawable(R.drawable.ic_done_all)
                 );
                 mViewAnimator.setDuration(300).alpha(1);
             }
