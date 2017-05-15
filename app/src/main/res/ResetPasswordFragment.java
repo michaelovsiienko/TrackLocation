@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,7 +46,7 @@ public class ResetPasswordFragment extends DialogFragment implements DialogInter
 
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         mView = layoutInflater.inflate(R.layout.fragment_resetpassword, null);
@@ -102,16 +102,16 @@ public class ResetPasswordFragment extends DialogFragment implements DialogInter
 
     @Override
     public void onClick(View v) {
-        mNewPasswordText.setText(com.example.mykhail.tracklocationv20.PasswordGenerate.generatePass());
+        mNewPasswordText.setText(PasswordGenerate.generatePass());
     }
 
     @Override
     public void onValidationSucceeded() {
         Toast.makeText(getActivity(), getResources().getString(R.string.succes_reset), Toast.LENGTH_LONG).show();
         mFirebaseRef
-                .child(com.example.mykhail.tracklocationv20.Singleton.getInstance()
+                .child(Singleton.getInstance()
                         .getUserPhone())
-                .child(com.example.mykhail.tracklocationv20.Constants.PASSWORD)
+                .child(Constants.PASSWORD)
                 .setValue(mNewPasswordText.getText().toString());
         mDialog.dismiss();
     }

@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -98,14 +98,14 @@ class ExpListAdapter extends BaseExpandableListAdapter {
 
         String bufferMyPassword = com.example.mykhail.tracklocationv20.MainActivity.mDataSnapshot
                 .child(com.example.mykhail.tracklocationv20.Singleton.getInstance().getUserPhone())
-                .child(com.example.mykhail.tracklocationv20.Constants.FRIENDS).child(childTextView.getText().toString())
-                .child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).getValue().toString();
+                .child(Constants.FRIENDS).child(childTextView.getText().toString())
+                .child(Constants.PASSWORD).getValue().toString();
         String bufferFriendPassword = com.example.mykhail.tracklocationv20.MainActivity.mDataSnapshot
                 .child(childTextView.getText().toString())
-                .child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).getValue().toString();
+                .child(Constants.PASSWORD).getValue().toString();
         String status = com.example.mykhail.tracklocationv20.MainActivity.mDataSnapshot
                 .child(childTextView.getText().toString())
-                .child(com.example.mykhail.tracklocationv20.Constants.STATUS).getValue().toString();
+                .child(Constants.STATUS).getValue().toString();
 
         TextView oldPassword = (TextView) convertView.findViewById(R.id.oldPasschildTextView);
         TextView statusTextView = (TextView) convertView.findViewById(R.id.status);

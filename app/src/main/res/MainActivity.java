@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences mSharedPreferences;
 
     private String mUserPhoneNumber;
-    private com.example.mykhail.tracklocationv20.FirebaseManager mFirebaseManager;
+    private FirebaseManager mFirebaseManager;
     private Firebase mFirebaseRef;
     public static DataSnapshot mDataSnapshot;
 
@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
 
-        mFirebaseManager = new com.example.mykhail.tracklocationv20.FirebaseManager(getApplicationContext());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseManager = new FirebaseManager(getApplicationContext());
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.GoogleMapFragment);
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         mAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autocompletetextview);
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onResume() {
         super.onResume();
         if (mUserPhoneNumber != null) {
-            mFirebaseRef.child(mUserPhoneNumber).child(com.example.mykhail.tracklocationv20.Constants.STATUS).setValue("online");
+            mFirebaseRef.child(mUserPhoneNumber).child(Constants.STATUS).setValue("online");
             mUserGroups = mFirebaseManager.getUserGroups(mUserPhoneNumber);
             mUserFriendList = mFirebaseManager.getUserFriendList(mUserPhoneNumber);
             com.example.mykhail.tracklocationv20.Singleton.getInstance().setmUserFriendList(mUserFriendList);
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onStop() {
         if (mUserPhoneNumber != null)
-            mFirebaseRef.child(mUserPhoneNumber).child(com.example.mykhail.tracklocationv20.Constants.STATUS).setValue("offline");
+            mFirebaseRef.child(mUserPhoneNumber).child(Constants.STATUS).setValue("offline");
         super.onStop();
     }
 
@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_menu_item:
-                com.example.mykhail.tracklocationv20.AddFriendFragment addFriendFragment = com.example.mykhail.tracklocationv20.AddFriendFragment.newInstance(mUserPhoneNumber, mUserGroups);
+                AddFriendFragment addFriendFragment = AddFriendFragment.newInstance(mUserPhoneNumber, mUserGroups);
                 addFriendFragment.show(getFragmentManager().beginTransaction(), "dialog");
                 break;
             case R.id.search:
@@ -425,8 +425,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         hideKeyboard(getApplicationContext(), mAutoCompleteTextView);
-        Log.i(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, "Autocomplete item selected: " + primaryText);
-        Log.i(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, placeId);
+        Log.i(Constants.LOG_TAG, "Autocomplete item selected: " + primaryText);
+        Log.i(Constants.LOG_TAG, placeId);
     }
 
     @Override

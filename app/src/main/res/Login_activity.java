@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +41,7 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(getResources().getString(R.string.login));
         setSupportActionBar(mToolbar);
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         mInputNumber = (TextInputLayout) findViewById(R.id.input_name_login_layout);
         mInputPassword = (TextInputLayout) findViewById(R.id.input_password_login_layout);
         mEditTextNumber = (EditText) findViewById(R.id.input_number_login);
@@ -94,7 +94,7 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.child(mEditTextNumber.getText().toString()).exists()) {
-                                String password = dataSnapshot.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).getValue().toString();
+                                String password = dataSnapshot.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).getValue().toString();
                                 String buff = mEditTextPassword.getText().toString();
                                 if (password.equals(buff)) {
                                     Intent intent = getIntent();
@@ -120,7 +120,7 @@ public class Login_activity extends AppCompatActivity implements View.OnClickLis
 
                 break;
             case R.id.button_registration:
-                startActivityForResult(new Intent(this, com.example.mykhail.tracklocationv20.Registration_activity.class), 1);
+                startActivityForResult(new Intent(this, Registration_activity.class), 1);
 
                 break;
         }

@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Context;
 
@@ -22,7 +22,7 @@ public class FirebaseManager {
     FirebaseManager(Context context) {
         mContext = context;
         Firebase.setAndroidContext(mContext);
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
     }
 
     public DataSnapshot getDataSnapshot() {
@@ -69,7 +69,7 @@ public class FirebaseManager {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 usersGroups.clear();
                 mDataSnapshot = dataSnapshot;
-                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(com.example.mykhail.tracklocationv20.Constants.GROUPS);
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.GROUPS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
                     usersGroups.add(child.getValue().toString());
                 com.example.mykhail.tracklocationv20.Singleton.getInstance().setUsersGroups(usersGroups);
@@ -92,10 +92,10 @@ public class FirebaseManager {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapshot = dataSnapshot;
                 mUsersFriendListGroups.clear();
-                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(com.example.mykhail.tracklocationv20.Constants.FRIENDS);
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
                     mUsersFriendListGroups.add(child
-                            .child(com.example.mykhail.tracklocationv20.Constants.GROUP).getValue().toString());
+                            .child(Constants.GROUP).getValue().toString());
                 com.example.mykhail.tracklocationv20.Singleton.getInstance().setmUserFriendListGroup(mUsersFriendListGroups);
             }
 
@@ -116,7 +116,7 @@ public class FirebaseManager {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mUsersFriendList.clear();
                 mDataSnapshot = dataSnapshot;
-                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(com.example.mykhail.tracklocationv20.Constants.FRIENDS);
+                DataSnapshot dataSnapshot1 = (DataSnapshot) mDataSnapshot.child(numberPhone).child(Constants.FRIENDS);
                 for (DataSnapshot child : dataSnapshot1.getChildren())
                     mUsersFriendList.add(child.getKey().toString());
             }

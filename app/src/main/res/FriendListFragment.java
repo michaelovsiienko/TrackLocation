@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -34,17 +34,17 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
 
     private ExpandableListView mExpandableListView;
     public static com.example.mykhail.tracklocationv20.ExpandableList sExpandableList;
-    public static com.example.mykhail.tracklocationv20.ExpListAdapter sExpandableListAdapter;
+    public static ExpListAdapter sExpandableListAdapter;
 
     private NavigationView mNavigationView;
 
     public static com.example.mykhail.tracklocationv20.FriendListFragment newInstance(String phoneNumber, List<String> usersGroups, List<String> usersFriendList, List<String> usersFriendListGroups) {
         com.example.mykhail.tracklocationv20.FriendListFragment fragment = new com.example.mykhail.tracklocationv20.FriendListFragment();
         Bundle arguments = new Bundle();
-        arguments.putString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG, phoneNumber);
-        arguments.putStringArrayList(com.example.mykhail.tracklocationv20.Constants.GROUPS, (ArrayList<String>) usersGroups);
-        arguments.putStringArrayList(com.example.mykhail.tracklocationv20.Constants.USERS_FRIEND, (ArrayList<String>) usersFriendList);
-        arguments.putStringArrayList(com.example.mykhail.tracklocationv20.Constants.USERS_FRIEND_GROUPS, (ArrayList<String>) usersFriendListGroups);
+        arguments.putString(Constants.PHONE_NUM_ARG, phoneNumber);
+        arguments.putStringArrayList(Constants.GROUPS, (ArrayList<String>) usersGroups);
+        arguments.putStringArrayList(Constants.USERS_FRIEND, (ArrayList<String>) usersFriendList);
+        arguments.putStringArrayList(Constants.USERS_FRIEND_GROUPS, (ArrayList<String>) usersFriendListGroups);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -64,10 +64,10 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         mNavigationView = (NavigationView) getActivity().findViewById(R.id.navigation_view);
         mPhoneNumberArgument = "";
         if (getArguments() != null) {
-            mPhoneNumberArgument = getArguments().getString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG);
-            mUsersGroups = getArguments().getStringArrayList(com.example.mykhail.tracklocationv20.Constants.GROUPS);
-            mUsersFriendList = getArguments().getStringArrayList(com.example.mykhail.tracklocationv20.Constants.USERS_FRIEND);
-            mUsersFriendListGroups = getArguments().getStringArrayList(com.example.mykhail.tracklocationv20.Constants.USERS_FRIEND_GROUPS);
+            mPhoneNumberArgument = getArguments().getString(Constants.PHONE_NUM_ARG);
+            mUsersGroups = getArguments().getStringArrayList(Constants.GROUPS);
+            mUsersFriendList = getArguments().getStringArrayList(Constants.USERS_FRIEND);
+            mUsersFriendListGroups = getArguments().getStringArrayList(Constants.USERS_FRIEND_GROUPS);
         }
     }
 
@@ -82,19 +82,19 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         for (int i = 0; i < mUsersFriendList.size(); i++) {
             sExpandableList.addContactToGroup(mUsersFriendListGroups.get(i), mUsersFriendList.get(i));
         }
-        sExpandableListAdapter = new com.example.mykhail.tracklocationv20.ExpListAdapter(getActivity(), sExpandableList.getGroupInformation());
+        sExpandableListAdapter = new ExpListAdapter(getActivity(), sExpandableList.getGroupInformation());
         mExpandableListView.setAdapter(sExpandableListAdapter);
         mExpandableListView.setOnChildClickListener(this);
         setGroupIndicatorToRight();
         Button showFriends = (Button) view.findViewById(R.id.onShowFriendsButton);
-        com.example.mykhail.tracklocationv20.Singleton.getInstance().getSelectedUsers().clear();
+        Singleton.getInstance().getSelectedUsers().clear();
         showFriends.setText(getResources().getString(R.string.review));
         showFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSelectedUsers = com.example.mykhail.tracklocationv20.Singleton.getInstance().getSelectedUsers();
+                mSelectedUsers = Singleton.getInstance().getSelectedUsers();
                 if (mSelectedUsers.size() != 0) {
-                    ((com.example.mykhail.tracklocationv20.MainActivity) getActivity()).reloadMap();
+                    ((MainActivity) getActivity()).reloadMap();
                     getActivity().getSupportFragmentManager().popBackStack();
                     mNavigationView.getMenu().getItem(0).setChecked(true);
                 }
@@ -118,8 +118,8 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
         } else {
             getActivity().getSupportFragmentManager().popBackStack();
             mNavigationView.getMenu().getItem(0).setChecked(true);
-            com.example.mykhail.tracklocationv20.IncorrectPasswordFragment incorrectPasswordFragment =
-                    com.example.mykhail.tracklocationv20.IncorrectPasswordFragment.newInstance(text.getText().toString(), mPhoneNumberArgument);
+            IncorrectPasswordFragment incorrectPasswordFragment =
+                    IncorrectPasswordFragment.newInstance(text.getText().toString(), mPhoneNumberArgument);
             incorrectPasswordFragment.show(getActivity().getFragmentManager().beginTransaction(), "dialog");
 
         }
@@ -149,7 +149,7 @@ public class FriendListFragment extends Fragment implements ExpandableListView.O
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.add_menu_item_group) {
-            com.example.mykhail.tracklocationv20.AddGroupFragment addGroupFragment = com.example.mykhail.tracklocationv20.AddGroupFragment.newInstance(mPhoneNumberArgument);
+            AddGroupFragment addGroupFragment = AddGroupFragment.newInstance(mPhoneNumberArgument);
             addGroupFragment.show(getActivity().getFragmentManager().beginTransaction(), "dialog");
         }
         return false;

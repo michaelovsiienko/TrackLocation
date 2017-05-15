@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,7 +53,7 @@ public class Registration_activity extends AppCompatActivity implements View.OnC
         setSupportActionBar(mToolbar);
 
         Firebase.setAndroidContext(getApplicationContext());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
 
         mActionButtonDone = (FloatingActionButton) findViewById(R.id.doneButton_registration);
         mActionButtonDone.setOnClickListener(this);
@@ -89,13 +89,13 @@ public class Registration_activity extends AppCompatActivity implements View.OnC
     public void registration() {
         if (listNumbers != null) {
             if (!listNumbers.contains(mEditTextNumber.getText().toString())) {
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).setValue(mEditTextPassword.getText().toString());
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.LONGITUDE).setValue(30);
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.LATITUDE).setValue(30);
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.GROUPS).child("1").setValue("Друзья");
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.GROUPS).child("2").setValue("Семья");
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.GROUPS).child("3").setValue("Работа");
-                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.STATUS).setValue("online");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.PASSWORD).setValue(mEditTextPassword.getText().toString());
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LONGITUDE).setValue(30);
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.LATITUDE).setValue(30);
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("1").setValue("Друзья");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("2").setValue("Семья");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.GROUPS).child("3").setValue("Работа");
+                mFirebaseRef.child(mEditTextNumber.getText().toString()).child(Constants.STATUS).setValue("online");
 
                 Intent intent = getIntent();
                 intent.putExtra("number", mEditTextNumber.getText().toString());
@@ -162,7 +162,7 @@ public class Registration_activity extends AppCompatActivity implements View.OnC
     private void confirmPhoneNumber() {
         if (!mEditTextNumber.getText().toString().isEmpty()) {
             mIsPhoneConfirm = true;
-            mEditTextPassword.setText(com.example.mykhail.tracklocationv20.PasswordGenerate.generatePass());
+            mEditTextPassword.setText(PasswordGenerate.generatePass());
             updateUi();
         }
         else

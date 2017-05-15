@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -112,7 +112,7 @@ public class GooglePlacesAutocompleteAdapter
 
     private ArrayList<AutocompletePrediction> getAutocomplete(CharSequence constraint) {
         if (mGoogleApiClient.isConnected()) {
-            Log.i(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, "Starting autocomplete query for: " + constraint);
+            Log.i(Constants.LOG_TAG, "Starting autocomplete query for: " + constraint);
 
             PendingResult<AutocompletePredictionBuffer> results =
                     Places.GeoDataApi
@@ -126,18 +126,18 @@ public class GooglePlacesAutocompleteAdapter
             if (!status.isSuccess()) {
                 Toast.makeText(getContext(), "Error contacting API: " + status.toString(),
                         Toast.LENGTH_SHORT).show();
-                Log.e(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, "Error getting autocomplete prediction API call: " + status.toString());
+                Log.e(Constants.LOG_TAG, "Error getting autocomplete prediction API call: " + status.toString());
                 autocompletePredictions.release();
                 return null;
             }
 
-            Log.i(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, "Query completed. Received " + autocompletePredictions.getCount()
+            Log.i(Constants.LOG_TAG, "Query completed. Received " + autocompletePredictions.getCount()
                     + " predictions.");
 
             // Freeze the results immutable representation that can be stored safely.
             return DataBufferUtils.freezeAndClose(autocompletePredictions);
         }
-        Log.e(com.example.mykhail.tracklocationv20.Constants.LOG_TAG, "Google API client is not connected for autocomplete query.");
+        Log.e(Constants.LOG_TAG, "Google API client is not connected for autocomplete query.");
         return null;
     }
 

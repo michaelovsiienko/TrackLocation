@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,20 +24,20 @@ public class AddGroupFragment extends DialogFragment implements DialogInterface.
     private EditText mNameGroup;
     private TextInputLayout mGroupNameLayout;
 
-    public static AddGroupFragment newInstance(String numberPhone) {
+    public static com.example.mykhail.tracklocationv20.AddGroupFragment newInstance(String numberPhone) {
         com.example.mykhail.tracklocationv20.AddGroupFragment addGroupFragment = new com.example.mykhail.tracklocationv20.AddGroupFragment();
         Bundle arguments = new Bundle();
-        arguments.putString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG, numberPhone);
+        arguments.putString(Constants.PHONE_NUM_ARG, numberPhone);
         addGroupFragment.setArguments(arguments);
         return addGroupFragment;
     }
 
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         if (getArguments() != null) {
-            mNumberPhone = getArguments().getString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG);
+            mNumberPhone = getArguments().getString(Constants.PHONE_NUM_ARG);
         }
         mView = inflater.inflate(R.layout.fragment_addgroup, null);
         mGroupNameLayout = (TextInputLayout) mView.findViewById(R.id.namegroup_fragmentaddgroupLayout);
@@ -54,8 +54,8 @@ public class AddGroupFragment extends DialogFragment implements DialogInterface.
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case Dialog.BUTTON_POSITIVE:
-                int count = (int) com.example.mykhail.tracklocationv20.Singleton.getInstance().getDataSnapshot().child(mNumberPhone).child(com.example.mykhail.tracklocationv20.Constants.GROUPS).getChildrenCount();
-                mFirebaseRef.child(mNumberPhone).child(com.example.mykhail.tracklocationv20.Constants.GROUPS).child(Integer.toString(count + 1)).setValue(mNameGroup.getText().toString());
+                int count = (int) com.example.mykhail.tracklocationv20.Singleton.getInstance().getDataSnapshot().child(mNumberPhone).child(Constants.GROUPS).getChildrenCount();
+                mFirebaseRef.child(mNumberPhone).child(Constants.GROUPS).child(Integer.toString(count + 1)).setValue(mNameGroup.getText().toString());
                 // Singleton.getInstance().getSelectedUsers().add(mNameGroup.getText().toString());
                 com.example.mykhail.tracklocationv20.FriendListFragment.sExpandableListAdapter.addGroup(mNameGroup.getText().toString());
                 //FriendListFragment.sExpandableListAdapter.notifyDataSetChanged();

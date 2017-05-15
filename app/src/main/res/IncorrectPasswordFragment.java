@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,19 +25,19 @@ public class IncorrectPasswordFragment extends DialogFragment implements DialogI
     public static com.example.mykhail.tracklocationv20.IncorrectPasswordFragment newInstance(String friendNumberPhone, String myNumberPhone) {
         com.example.mykhail.tracklocationv20.IncorrectPasswordFragment incorrectPasswordFragment = new com.example.mykhail.tracklocationv20.IncorrectPasswordFragment();
         Bundle arguments = new Bundle();
-        arguments.putString(com.example.mykhail.tracklocationv20.Constants.FRIEND_NUMBER, friendNumberPhone);
-        arguments.putString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG, myNumberPhone);
+        arguments.putString(Constants.FRIEND_NUMBER, friendNumberPhone);
+        arguments.putString(Constants.PHONE_NUM_ARG, myNumberPhone);
         incorrectPasswordFragment.setArguments(arguments);
         return incorrectPasswordFragment;
     }
 
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (getArguments() != null) {
-            mFriendPhone = getArguments().getString(com.example.mykhail.tracklocationv20.Constants.FRIEND_NUMBER);
-            myNumberPhone = getArguments().getString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG);
+            mFriendPhone = getArguments().getString(Constants.FRIEND_NUMBER);
+            myNumberPhone = getArguments().getString(Constants.PHONE_NUM_ARG);
         }
         mView = layoutInflater.inflate(R.layout.frament_incorrectpassword, null);
 
@@ -58,10 +58,10 @@ public class IncorrectPasswordFragment extends DialogFragment implements DialogI
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case Dialog.BUTTON_POSITIVE:
-                if (mNewPassword.getText().toString().equals(com.example.mykhail.tracklocationv20.MainActivity.mDataSnapshot.child(mFriendPhone).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).getValue().toString())) {
+                if (mNewPassword.getText().toString().equals(MainActivity.mDataSnapshot.child(mFriendPhone).child(Constants.PASSWORD).getValue().toString())) {
                     mFirebaseRef.child(myNumberPhone)
-                            .child(com.example.mykhail.tracklocationv20.Constants.FRIENDS)
-                            .child(mFriendPhone).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).setValue(mNewPassword.getText().toString());
+                            .child(Constants.FRIENDS)
+                            .child(mFriendPhone).child(Constants.PASSWORD).setValue(mNewPassword.getText().toString());
                 } else {
                     mInputPasswordLayout.setHint(getResources().getString(R.string.incorrect_password));
                 }

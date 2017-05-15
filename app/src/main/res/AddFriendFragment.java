@@ -1,4 +1,4 @@
-package com.tracklocation;
+package com.example.mykhail.tracklocationv20;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,19 +43,19 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
     public static com.example.mykhail.tracklocationv20.AddFriendFragment newInstance(String numberPhone, List<String> usersGroups) {
         com.example.mykhail.tracklocationv20.AddFriendFragment addFriendFragment = new com.example.mykhail.tracklocationv20.AddFriendFragment();
         Bundle arguments = new Bundle();
-        arguments.putString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG, numberPhone);
-        arguments.putStringArrayList(com.example.mykhail.tracklocationv20.Constants.GROUPS, (ArrayList<String>) usersGroups);
+        arguments.putString(Constants.PHONE_NUM_ARG, numberPhone);
+        arguments.putStringArrayList(Constants.GROUPS, (ArrayList<String>) usersGroups);
         addFriendFragment.setArguments(arguments);
         return addFriendFragment;
     }
 
     public Dialog onCreateDialog(Bundle bundle) {
         Firebase.setAndroidContext(getActivity());
-        mFirebaseRef = new Firebase(com.example.mykhail.tracklocationv20.Constants.DATABASE_URL);
+        mFirebaseRef = new Firebase(Constants.DATABASE_URL);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         if (getArguments() != null) {
-            mPhoneNumberArgument = getArguments().getString(com.example.mykhail.tracklocationv20.Constants.PHONE_NUM_ARG);
-            groups = getArguments().getStringArrayList(com.example.mykhail.tracklocationv20.Constants.GROUPS);
+            mPhoneNumberArgument = getArguments().getString(Constants.PHONE_NUM_ARG);
+            groups = getArguments().getStringArrayList(Constants.GROUPS);
 
         }
 
@@ -98,16 +98,16 @@ public class AddFriendFragment extends DialogFragment implements DialogInterface
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.child(numberFriend.getText().toString()).exists()) {
-                            for (DataSnapshot child : dataSnapshot.child(mPhoneNumberArgument).child(com.example.mykhail.tracklocationv20.Constants.FRIENDS).getChildren()) {
+                            for (DataSnapshot child : dataSnapshot.child(mPhoneNumberArgument).child(Constants.FRIENDS).getChildren()) {
                                 userFriends.add(child.getKey().toString());
                             }
                             if (!userFriends.contains(numberFriend.getText().toString())) {
                                 String buffer = passwordFriend.getText().toString();
                                 if (dataSnapshot != null)
-                                    password = dataSnapshot.child(numberFriend.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).getValue().toString();
+                                    password = dataSnapshot.child(numberFriend.getText().toString()).child(Constants.PASSWORD).getValue().toString();
                                 if (password.equals(buffer)) {
-                                    mFirebaseRef.child(mPhoneNumberArgument).child(com.example.mykhail.tracklocationv20.Constants.FRIENDS).child(numberFriend.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
-                                    mFirebaseRef.child(mPhoneNumberArgument).child(com.example.mykhail.tracklocationv20.Constants.FRIENDS).child(numberFriend.getText().toString()).child(com.example.mykhail.tracklocationv20.Constants.PASSWORD).setValue(password);
+                                    mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.GROUP).setValue(mSpinner.getSelectedItem().toString());
+                                    mFirebaseRef.child(mPhoneNumberArgument).child(Constants.FRIENDS).child(numberFriend.getText().toString()).child(Constants.PASSWORD).setValue(password);
                                     Toast.makeText(getActivity(), getResources().getString(R.string.succes), Toast.LENGTH_LONG).show();
                                     mDialog.dismiss();
                                 } else {
